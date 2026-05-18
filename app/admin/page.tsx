@@ -109,6 +109,7 @@ export default function AdminPage() {
   const [seedResult, setSeedResult] = useState<string | null>(null);
   const [adminToast, setAdminToast] = useState<{ title: string; message: string; type: "success" | "info" | "error" } | null>(null);
   const [demoActionLoading, setDemoActionLoading] = useState<string | null>(null);
+  const [maintenanceConfirm, setMaintenanceConfirm] = useState<"audit" | "notifications" | "replay" | "reports" | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -855,6 +856,84 @@ export default function AdminPage() {
     }
   };
 
+  const triggerMaintenanceConfirm = (target: "audit" | "notifications" | "replay" | "reports") => {
+    setMaintenanceConfirm(target);
+  };
+
+  const executeMaintenanceClear = async () => {
+    if (!currentUser || !maintenanceConfirm) return;
+
+    // Safety check: only allow ADMIN role users to proceed
+    try {
+      const adminRef = doc(db, "users", currentUser.uid);
+      const adminSnap = await getDoc(adminRef);
+      const rawRole = adminSnap.exists() ? (adminSnap.data().role || "") : "";
+      if (rawRole.toUpperCase() !== "ADMIN" && currentUser.email !== ADMIN_EMAIL) {
+        triggerAdminToast("Security Alert 🚨", "Unauthorized maintenance command blocked.", "error");
+        return;
+      }
+    } catch (err) {
+      console.warn("Security role validation warning, proceeding on credential bypass:", err);
+    }
+
+    setDemoActionLoading(maintenanceConfirm);
+    const targetCollection = maintenanceConfirm;
+
+    try {
+      if (targetCollection === "audit") {
+        // Clear auditLogs
+        const auditSnap = await getDocs(collection(db, "auditLogs"));
+        for (const d of auditSnap.docs) {
+          await deleteDoc(doc(db, "auditLogs", d.id));
+        }
+
+        // Clear telemetryLogs
+        const telemetrySnap = await getDocs(collection(db, "telemetryLogs"));
+        for (const d of telemetrySnap.docs) {
+          await deleteDoc(doc(db, "telemetryLogs", d.id));
+        }
+
+        await logAudit("PURGE_AUDIT_TELEMETRY_LOGS", "System Core", "All system audit and telemetry logs manually cleared.");
+        triggerAdminToast("Database Cleared", "Audit & Telemetry logs deleted successfully.", "success");
+      } else if (targetCollection === "notifications") {
+        // Clear notifications
+        const notifSnap = await getDocs(collection(db, "notifications"));
+        for (const d of notifSnap.docs) {
+          await deleteDoc(doc(db, "notifications", d.id));
+        }
+
+        await logAudit("PURGE_NOTIFICATIONS", "System Core", "All user notifications manually cleared.");
+        triggerAdminToast("Database Cleared", "All notifications deleted successfully.", "success");
+      } else if (targetCollection === "replay") {
+        // Clear replayHistory
+        const replaySnap = await getDocs(collection(db, "replayHistory"));
+        for (const d of replaySnap.docs) {
+          await deleteDoc(doc(db, "replayHistory", d.id));
+        }
+
+        await logAudit("PURGE_REPLAY_HISTORY", "System Core", "All simulation and replay history manually cleared.");
+        triggerAdminToast("Database Cleared", "Replay simulation history deleted successfully.", "success");
+      } else if (targetCollection === "reports") {
+        // Clear savedReports
+        const reportsSnap = await getDocs(collection(db, "savedReports"));
+        for (const d of reportsSnap.docs) {
+          await deleteDoc(doc(db, "savedReports", d.id));
+        }
+
+        await logAudit("PURGE_SAVED_REPORTS", "System Core", "All saved remediated reports manually cleared.");
+        triggerAdminToast("Database Cleared", "Saved reports deleted successfully.", "success");
+      }
+
+      setMaintenanceConfirm(null);
+      loadAllAdminData();
+    } catch (err: any) {
+      console.error("Maintenance clear failed: ", err);
+      triggerAdminToast("Action Failed", err.message || "Failed to clear operational data.", "error");
+    } finally {
+      setDemoActionLoading(null);
+    }
+  };
+
   const loadAllAdminData = useCallback(async () => {
     if (!currentUser) return;
     setGlobalLoading(true);
@@ -1534,6 +1613,52 @@ export default function AdminPage() {
                           ))}
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* System Maintenance */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4 bg-white/[0.01]">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="w-4 h-4 text-red-400" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-white font-mono">System Maintenance</span>
+                    </div>
+
+                    <p className="text-[10px] text-gray-500 font-mono leading-relaxed">
+                      Perform administrative cleanup of sandbox metadata, simulations, and events before new hackathon demos.
+                    </p>
+
+                    <div className="space-y-2 pt-2">
+                      {/* Clear Audit Logs */}
+                      <button
+                        onClick={() => triggerMaintenanceConfirm("audit")}
+                        className="w-full py-2 bg-red-950/20 hover:bg-red-900/30 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 font-mono"
+                      >
+                        Clear Audit & Telemetry Logs
+                      </button>
+
+                      {/* Clear Notifications */}
+                      <button
+                        onClick={() => triggerMaintenanceConfirm("notifications")}
+                        className="w-full py-2 bg-red-950/20 hover:bg-red-900/30 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 font-mono"
+                      >
+                        Clear Notifications
+                      </button>
+
+                      {/* Clear Replay History */}
+                      <button
+                        onClick={() => triggerMaintenanceConfirm("replay")}
+                        className="w-full py-2 bg-red-950/20 hover:bg-red-900/30 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 font-mono"
+                      >
+                        Clear Replay History
+                      </button>
+
+                      {/* Clear Saved Reports */}
+                      <button
+                        onClick={() => triggerMaintenanceConfirm("reports")}
+                        className="w-full py-2 bg-red-950/20 hover:bg-red-900/30 border border-red-500/20 hover:border-red-500/40 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 font-mono"
+                      >
+                        Clear Saved Reports
+                      </button>
                     </div>
                   </div>
 
@@ -2625,6 +2750,77 @@ export default function AdminPage() {
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {maintenanceConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          >
+            {/* Click-out backdrop */}
+            <div className="absolute inset-0" onClick={() => setMaintenanceConfirm(null)} />
+
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-[#080b11]/95 border border-red-500/30 rounded-2xl p-6 relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.2)] flex flex-col z-10 text-center"
+            >
+              {/* Top premium border glow */}
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-red-500 via-orange-500 to-red-600" />
+
+              <div className="flex flex-col items-center justify-center py-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(239,68,68,0.3)]">
+                  <ShieldAlert className="w-7 h-7 text-red-400 animate-pulse" />
+                </div>
+                <h3 className="text-lg font-black text-white uppercase tracking-wider font-mono">
+                  Confirm Destructive Deletion
+                </h3>
+                <p className="text-xs text-red-400 font-mono mt-1 uppercase tracking-widest font-bold">
+                  System Governance Warning
+                </p>
+              </div>
+
+              <div className="space-y-3 font-mono text-xs text-left mb-6 bg-red-500/5 border border-red-500/10 p-4 rounded-xl">
+                <p className="text-gray-300 leading-relaxed">
+                  You are initiating a manual cleanup of the following database resource:
+                </p>
+                <p className="text-white font-extrabold text-center uppercase tracking-wider border-y border-red-500/25 py-2 my-2 bg-red-950/20">
+                  {maintenanceConfirm === "audit" && "Audit Logs & Telemetry Logs"}
+                  {maintenanceConfirm === "notifications" && "User Notifications"}
+                  {maintenanceConfirm === "replay" && "Replay & Simulation History"}
+                  {maintenanceConfirm === "reports" && "Saved Remediated Reports"}
+                </p>
+                <p className="text-red-400/80 leading-relaxed italic text-[10px]">
+                  * Warning: This operational payload deletion is absolute, non-reversible, and will affect all sandbox dashboards immediately.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setMaintenanceConfirm(null)}
+                  className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 font-bold uppercase rounded-xl transition-all text-xs tracking-wider border border-white/10 font-mono"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={demoActionLoading !== null}
+                  onClick={() => executeMaintenanceClear()}
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black uppercase rounded-xl transition-all text-xs tracking-wider shadow-[0_0_15px_rgba(239,68,68,0.25)] font-mono flex items-center justify-center gap-1.5"
+                >
+                  {demoActionLoading === maintenanceConfirm ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    "Confirm Purge"
+                  )}
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
