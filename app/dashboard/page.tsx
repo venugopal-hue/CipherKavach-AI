@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Upload, FileJson, AlertTriangle, CheckCircle2, Loader2, ArrowLeft, BrainCircuit, Activity, ShieldAlert, ChevronDown, ChevronUp, BarChart2, PlayCircle, Terminal, Copy, Download, History, X, Send, Bot, User, FileText, FileDown, Network, Crosshair, Zap, Layers, AlertCircle, GitMerge, ShieldCheck, Target, GitBranch, Star, Code, Search, Key, Lock, Play, Pause, RotateCcw, SkipForward, Trash2, Bell } from "lucide-react";
+import { Shield, Upload, FileJson, AlertTriangle, CheckCircle2, Loader2, ArrowLeft, BrainCircuit, Activity, ShieldAlert, ChevronDown, ChevronUp, BarChart2, PlayCircle, Terminal, Copy, Download, History, X, Send, Bot, User, FileText, FileDown, Network, Crosshair, Zap, Layers, AlertCircle, GitMerge, ShieldCheck, Target, GitBranch, Star, Code, Search, Key, Lock, Play, Pause, RotateCcw, SkipForward, Trash2, Bell, Rocket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -73,6 +73,7 @@ export default function DashboardPage() {
   const [file, setFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [scanStepIndex, setScanStepIndex] = useState(0);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -803,14 +804,23 @@ export default function DashboardPage() {
     }
   };
 
-  const handleRequestCredits = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const triggerComingSoon = () => {
+    setShowComingSoon(true);
+    setTimeout(() => {
+      setShowComingSoon(false);
+    }, 4500);
+
     triggerNotification(
       "Coming Soon 🚀",
       "Enterprise provisioning will be available in the production release.",
       "general",
       "info"
     );
+  };
+
+  const handleRequestCredits = async (e: React.FormEvent) => {
+    e.preventDefault();
+    triggerComingSoon();
     setShowRequestCreditsModal(false);
   };
 
@@ -1561,12 +1571,7 @@ export default function DashboardPage() {
   };
 
   const handleUpgradeToEnterprise = async () => {
-    triggerNotification(
-      "Coming Soon 🚀",
-      "Enterprise provisioning will be available in the production release.",
-      "general",
-      "info"
-    );
+    triggerComingSoon();
   };
 
   const fetchFirebaseHistory = async (uid: string) => {
@@ -2707,12 +2712,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Tokens Processed</span><span className="text-sm font-mono text-blue-300 font-bold">~18k</span></div>
                     <div className="pt-3 border-t border-white/5 text-xs text-gray-400 font-mono">Standard: 1cr · Replay: 3cr · Multi-Model: 5cr</div>
                     <button
-                      onClick={() => triggerNotification(
-                        "Coming Soon 🚀",
-                        "Enterprise provisioning will be available in the production release.",
-                        "general",
-                        "info"
-                      )}
+                      onClick={triggerComingSoon}
                       className="w-full mt-4 py-2.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.15)] hover:shadow-[0_0_20px_rgba(234,179,8,0.25)]"
                     >
                       <Zap className="w-3.5 h-3.5" /> Request More Credits
@@ -3021,14 +3021,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
               </div>
             </div>
             <button
-              onClick={() => {
-                triggerNotification(
-                  "Coming Soon 🚀",
-                  "Enterprise provisioning will be available in the production release.",
-                  "general",
-                  "info"
-                );
-              }}
+              onClick={triggerComingSoon}
               className="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-black px-3 py-1.5 rounded-lg border border-orange-500/30 hover:bg-orange-400 transition-colors shrink-0"
             >
               Request Quota
@@ -4777,14 +4770,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
 
               <div className="space-y-2.5">
                 <button
-                  onClick={() => {
-                    triggerNotification(
-                      "Coming Soon 🚀",
-                      "Enterprise provisioning will be available in the production release.",
-                      "general",
-                      "info"
-                    );
-                  }}
+                  onClick={triggerComingSoon}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
                   <span className="flex items-center gap-2 font-mono"><Key className="w-4 h-4 text-black" /> Request More Credits</span>
@@ -4864,14 +4850,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
 
               <div className="space-y-2.5">
                 <button
-                  onClick={() => {
-                    triggerNotification(
-                      "Coming Soon 🚀",
-                      "Enterprise provisioning will be available in the production release.",
-                      "general",
-                      "info"
-                    );
-                  }}
+                  onClick={triggerComingSoon}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
                   <span className="flex items-center gap-2 font-mono"><Key className="w-4 h-4 text-black" /> Request Additional Credits</span>
@@ -5097,6 +5076,36 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                 );
               })()}
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showComingSoon && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] w-full max-w-md px-4 pointer-events-none"
+          >
+            <div className="backdrop-blur-xl bg-[#090d16]/95 border border-purple-500/30 rounded-2xl p-5 shadow-[0_0_35px_rgba(168,85,247,0.25)] flex items-start gap-4 relative overflow-hidden pointer-events-auto">
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center shrink-0">
+                <Rocket className="w-5 h-5 text-purple-400" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <h4 className="text-sm font-black text-white font-mono uppercase tracking-wider font-bold">Coming Soon 🚀</h4>
+                <p className="text-xs text-purple-200/80 leading-relaxed font-mono">
+                  Enterprise provisioning will be available in the production release.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowComingSoon(false)}
+                className="text-gray-500 hover:text-white transition-colors p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
