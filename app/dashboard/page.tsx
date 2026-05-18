@@ -805,55 +805,13 @@ export default function DashboardPage() {
 
   const handleRequestCredits = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
-    setIsSubmittingRequest(true);
-    const requestPayload = {
-      userId: currentUser.uid,
-      displayName: userDoc?.displayName || currentUser.displayName || inferDisplayNameFromEmail(currentUser.email || ""),
-      email: currentUser.email || "",
-      currentPlan: isEnterprise ? "ENTERPRISE" : "STANDARD",
-      availableCredits: userCredits,
-      maxCredits: 250,
-      requestedCredits: Number(requestCreditsAmt),
-      reason: requestReason,
-      projectName: requestProjectName || "N/A",
-      status: "PENDING",
-      createdAt: new Date().toISOString()
-    };
-
-    // Save locally
-    try {
-      const local = localStorage.getItem('cipherkavach_credit_requests');
-      const parsed = local ? JSON.parse(local) : [];
-      const existing = Array.isArray(parsed) ? parsed : [];
-      localStorage.setItem('cipherkavach_credit_requests', JSON.stringify([requestPayload, ...existing]));
-    } catch (err) {
-      console.warn("Failed to save request locally:", err);
-    }
-
-    try {
-      // Bypassed Firestore writes to prevent creditRequests and auditLogs permission warnings
-      // Runtime telemetries
-      const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      setTelemetry(prev => [...prev, `[${ts}] Quota request submitted: +${requestCreditsAmt} AI Credits`, `[${ts}] Request status: PENDING REVIEW`]);
-      triggerNotification(
-        "Credit Request Registered",
-        `Requested +${requestCreditsAmt} credits for project "${requestProjectName || 'Default'}". Status: PENDING (Sandboxed).`,
-        "request_approved",
-        "info"
-      );
-    } catch (err) {
-      console.warn("Firestore credit request write bypassed:", err);
-    } finally {
-      setRequestSuccess(true);
-      setTimeout(() => {
-        setShowRequestCreditsModal(false);
-        setRequestSuccess(false);
-        setRequestReason("");
-        setRequestProjectName("");
-      }, 2500);
-      setIsSubmittingRequest(false);
-    }
+    triggerNotification(
+      "Coming Soon 🚀",
+      "Enterprise provisioning will be available in the production release.",
+      "general",
+      "info"
+    );
+    setShowRequestCreditsModal(false);
   };
 
   const handleRedeemCode = async () => {
@@ -1603,24 +1561,12 @@ export default function DashboardPage() {
   };
 
   const handleUpgradeToEnterprise = async () => {
-    if (!currentUser) return;
-    try {
-      const userRef = doc(db, "users", currentUser.uid);
-      const newCredits = userCredits + 1000;
-      await setDoc(userRef, { credits: newCredits, role: "enterprise" }, { merge: true });
-      setUserCredits(newCredits);
-      setIsEnterprise(true);
-
-      // Audit log write bypassed to prevent permission warnings
-      console.log("[Bypassed Audit Log] ENTERPRISE_UPGRADE for +1000 Credits");
-
-      const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      setTelemetry(prev => [...prev, `[${ts}] Enterprise upgrade subscription successfully processed`, `[${ts}] +1000 AI Credits loaded to system`]);
-
-      setShowExhaustionModal(false);
-    } catch (e) {
-      console.warn("Enterprise upgrade restricted or failed:", e);
-    }
+    triggerNotification(
+      "Coming Soon 🚀",
+      "Enterprise provisioning will be available in the production release.",
+      "general",
+      "info"
+    );
   };
 
   const fetchFirebaseHistory = async (uid: string) => {
@@ -2761,7 +2707,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Tokens Processed</span><span className="text-sm font-mono text-blue-300 font-bold">~18k</span></div>
                     <div className="pt-3 border-t border-white/5 text-xs text-gray-400 font-mono">Standard: 1cr · Replay: 3cr · Multi-Model: 5cr</div>
                     <button
-                      onClick={() => setShowRequestCreditsModal(true)}
+                      onClick={() => triggerNotification(
+                        "Coming Soon 🚀",
+                        "Enterprise provisioning will be available in the production release.",
+                        "general",
+                        "info"
+                      )}
                       className="w-full mt-4 py-2.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.15)] hover:shadow-[0_0_20px_rgba(234,179,8,0.25)]"
                     >
                       <Zap className="w-3.5 h-3.5" /> Request More Credits
@@ -3071,9 +3022,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
             </div>
             <button
               onClick={() => {
-                setShowControlCenter(true);
-                // We'll highlight or open the credit request modal
-                setTimeout(() => setShowRequestCreditsModal(true), 200);
+                triggerNotification(
+                  "Coming Soon 🚀",
+                  "Enterprise provisioning will be available in the production release.",
+                  "general",
+                  "info"
+                );
               }}
               className="text-[10px] font-black uppercase tracking-wider bg-orange-500 text-black px-3 py-1.5 rounded-lg border border-orange-500/30 hover:bg-orange-400 transition-colors shrink-0"
             >
@@ -4824,9 +4778,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
               <div className="space-y-2.5">
                 <button
                   onClick={() => {
-                    setShowExhaustionModal(false);
-                    setShowControlCenter(true);
-                    setTimeout(() => setShowRequestCreditsModal(true), 250);
+                    triggerNotification(
+                      "Coming Soon 🚀",
+                      "Enterprise provisioning will be available in the production release.",
+                      "general",
+                      "info"
+                    );
                   }}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
@@ -4908,9 +4865,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
               <div className="space-y-2.5">
                 <button
                   onClick={() => {
-                    setShowGovernanceModal(false);
-                    setShowControlCenter(true);
-                    setTimeout(() => setShowRequestCreditsModal(true), 250);
+                    triggerNotification(
+                      "Coming Soon 🚀",
+                      "Enterprise provisioning will be available in the production release.",
+                      "general",
+                      "info"
+                    );
                   }}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
