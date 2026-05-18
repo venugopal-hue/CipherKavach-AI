@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
 
   // 2. GENERATE NEW OPERATIONS DATA
   const ADMIN_UID = "Mu2hYM65AxOOffisPtdGygMGtDf1";
-  const DEMO_UID = "eU0Q67e1JNNPMnR6ptI67qpFL7W2";
+  const DEMO_UID = "MurI5Mj6eheVRPdExIQByVlAYUx2";
 
   const seedDoc = async (colName: string, data: any, docId?: string) => {
     try {

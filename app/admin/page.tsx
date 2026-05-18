@@ -427,7 +427,7 @@ export default function AdminPage() {
     try {
       const now = new Date();
       const ADMIN_UID = "Mu2hYM65AxOOffisPtdGygMGtDf1";
-      const DEMO_UID = "eU0Q67e1JNNPMnR6ptI67qpFL7W2";
+      const DEMO_UID = "MurI5Mj6eheVRPdExIQByVlAYUx2";
 
       const targetCollections = [
         "scans",
@@ -716,7 +716,7 @@ export default function AdminPage() {
     setSeedResult("Initializing client-side database cleanup...");
     try {
       const ADMIN_UID = "Mu2hYM65AxOOffisPtdGygMGtDf1";
-      const DEMO_UID = "eU0Q67e1JNNPMnR6ptI67qpFL7W2";
+      const DEMO_UID = "MurI5Mj6eheVRPdExIQByVlAYUx2";
       const preservedUids = [ADMIN_UID, DEMO_UID];
 
       // 1. Clean users collection
@@ -823,7 +823,7 @@ export default function AdminPage() {
     }
 
     setDemoActionLoading(action);
-    const demoUserRef = doc(db, "users", "eU0Q67e1JNNPMnR6ptI67qpFL7W2");
+    const demoUserRef = doc(db, "users", "MurI5Mj6eheVRPdExIQByVlAYUx2");
 
     try {
       if (action === "reset") {
@@ -833,7 +833,7 @@ export default function AdminPage() {
         }, { merge: true });
 
         await logAudit("RESET_DEMO_ACCOUNT", "demo@cipherkavach.ai", "Reset credits to 220 and demoScansUsed to 0");
-        setOperators(p => p.map(u => u.uid === "eU0Q67e1JNNPMnR6ptI67qpFL7W2" ? { ...u, credits: 220, demoScansUsed: 0 } : u));
+        setOperators(p => p.map(u => u.uid === "MurI5Mj6eheVRPdExIQByVlAYUx2" ? { ...u, credits: 220, demoScansUsed: 0 } : u));
         triggerAdminToast("Demo Account Reset", "Demo usage reset successfully.", "success");
       } else if (action === "grant" && amount) {
         const demoSnap = await getDoc(demoUserRef);
@@ -845,7 +845,7 @@ export default function AdminPage() {
         }, { merge: true });
 
         await logAudit("GRANT_DEMO_CREDITS", "demo@cipherkavach.ai", `Granted +${amount} credits. New balance: ${newCredits}`);
-        setOperators(p => p.map(u => u.uid === "eU0Q67e1JNNPMnR6ptI67qpFL7W2" ? { ...u, credits: newCredits } : u));
+        setOperators(p => p.map(u => u.uid === "MurI5Mj6eheVRPdExIQByVlAYUx2" ? { ...u, credits: newCredits } : u));
         triggerAdminToast("Demo Credits Granted", "Demo credits updated successfully.", "success");
       }
       
