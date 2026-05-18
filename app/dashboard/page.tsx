@@ -73,7 +73,7 @@ export default function DashboardPage() {
   const [file, setFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
   const [isScanning, setIsScanning] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const [scanStepIndex, setScanStepIndex] = useState(0);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -805,11 +805,7 @@ export default function DashboardPage() {
   };
 
   const triggerComingSoon = () => {
-    setShowComingSoon(true);
-    setTimeout(() => {
-      setShowComingSoon(false);
-    }, 4500);
-
+    setShowComingSoonModal(true);
     triggerNotification(
       "Coming Soon 🚀",
       "Enterprise provisioning will be available in the production release.",
@@ -5081,31 +5077,52 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
       </AnimatePresence>
 
       <AnimatePresence>
-        {showComingSoon && (
+        {showComingSoonModal && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[150] w-full max-w-md px-4 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
           >
-            <div className="backdrop-blur-xl bg-[#090d16]/95 border border-purple-500/30 rounded-2xl p-5 shadow-[0_0_35px_rgba(168,85,247,0.25)] flex items-start gap-4 relative overflow-hidden pointer-events-auto">
+            {/* Click-out backdrop */}
+            <div className="absolute inset-0" onClick={() => setShowComingSoonModal(false)} />
+
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="w-full max-w-md bg-[#080b11]/95 border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.2)] flex flex-col z-10 text-center"
+            >
+              {/* Top premium border glow */}
               <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500" />
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center shrink-0">
-                <Rocket className="w-5 h-5 text-purple-400" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <h4 className="text-sm font-black text-white font-mono uppercase tracking-wider font-bold">Coming Soon 🚀</h4>
-                <p className="text-xs text-purple-200/80 leading-relaxed font-mono">
-                  Enterprise provisioning will be available in the production release.
+
+              <div className="flex flex-col items-center justify-center py-4 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center mb-4 shadow-[0_0_25px_rgba(168,85,247,0.3)]">
+                  <Rocket className="w-7 h-7 text-purple-400 animate-bounce" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-wider font-mono">
+                  Coming Soon 🚀
+                </h3>
+                <p className="text-xs text-purple-300 font-mono mt-1">
+                  Enterprise Release Gateway
                 </p>
               </div>
-              <button
-                onClick={() => setShowComingSoon(false)}
-                className="text-gray-500 hover:text-white transition-colors p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+
+              <div className="space-y-4 font-mono mb-6">
+                <p className="text-xs text-gray-300 leading-relaxed">
+                  Enterprise provisioning and runtime quota scaling will be fully available in the production release.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowComingSoonModal(false)}
+                  className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white font-black uppercase rounded-xl transition-all text-xs tracking-widest shadow-[0_0_15px_rgba(168,85,247,0.25)]"
+                >
+                  Acknowledge Terminal
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
