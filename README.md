@@ -20,7 +20,7 @@ Modern software development relies heavily on third-party libraries—introducin
 
 ## 🚀 Live Demo & Repository Links
 
-*   **⚡ Live Production URL:** [https://cipherkavach-ai.vercel.app/](https://cipherkavach-ai.vercel.app/) *(Placeholder)*
+*   **⚡ Live Production URL:** [https://cipherkavach-ai.vercel.app/](https://cipherkavach-ai.vercel.app/)
 *   **💻 GitHub Source Code:** [https://github.com/venugopal-hue/CipherKavach-AI](https://github.com/venugopal-hue/CipherKavach-AI)
 *   **📰 Full Engineering Article:** [Read on Medium](https://medium.com/@venugopalrao1802/my-ai-security-runtime-burned-through-credits-faster-than-the-vulnerabilities-b5a75d3d46f7)
 
