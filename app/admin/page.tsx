@@ -1566,56 +1566,6 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  {/* Demo account controls */}
-                  <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4 bg-white/[0.01]">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-yellow-400" />
-                      <span className="text-xs font-bold uppercase tracking-widest text-white font-mono">Demo Operator Controls</span>
-                    </div>
-
-                    <div className="p-3.5 bg-yellow-500/5 border border-yellow-500/20 rounded-xl space-y-2">
-                      <p className="text-[10px] font-black text-yellow-400 uppercase tracking-wider font-mono">Target Agent: demo@cipherkavach.ai</p>
-                      <p className="text-[10px] text-gray-400 leading-relaxed font-mono">
-                        Quick sandbox tuning for live hackathon presentations and evaluator reviews.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {/* Action 1: Reset */}
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest font-mono">Reset Quota & Balance</span>
-                        <button
-                          disabled={demoActionLoading !== null}
-                          onClick={() => handleDemoAction("reset")}
-                          className="w-full py-2 border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
-                        >
-                          {demoActionLoading === "reset" ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <RefreshCw className="w-3.5 h-3.5" />
-                          )}
-                          Reset Demo Usage
-                        </button>
-                      </div>
-
-                      {/* Action 2: Grant */}
-                      <div className="space-y-2">
-                        <span className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest font-mono">Grant Credits</span>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[50, 100, 500].map(amt => (
-                            <button
-                              key={amt}
-                              disabled={demoActionLoading !== null}
-                              onClick={() => handleDemoAction("grant", amt)}
-                              className="py-1.5 border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/15 text-yellow-400 font-bold rounded-lg transition-all text-xs flex items-center justify-center gap-1 font-mono"
-                            >
-                              +{amt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
                   {/* System Maintenance */}
                   <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4 bg-white/[0.01]">
