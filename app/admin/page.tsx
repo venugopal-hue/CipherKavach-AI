@@ -783,21 +783,7 @@ export default function AdminPage() {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        console.log("[Secret Trigger] Ctrl+Shift+S caught. Initializing authenticated clean seeder...");
-        handleSeedDatabase();
-      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
-        e.preventDefault();
-        console.log("[Secret Trigger] Ctrl+Shift+C caught. Initializing authenticated database cleanup...");
-        handleCleanDatabase();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  // Secret keyboard listeners disabled to prevent accidental automatic triggers in production
 
   const triggerAdminToast = (title: string, message: string, type: "success" | "info" | "error" = "success") => {
     setAdminToast({ title, message, type });

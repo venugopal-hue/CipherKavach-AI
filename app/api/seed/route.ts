@@ -3,10 +3,10 @@ import { db } from "@/lib/firebase";
 import { collection, doc, setDoc, getDocs, deleteDoc, addDoc, Timestamp } from "firebase/firestore";
 
 export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
-  if (token !== "hackathon2026") {
-    return NextResponse.json({ error: "Unauthorized seeder token." }, { status: 401 });
-  }
+  return NextResponse.json(
+    { error: "API seeder endpoint is permanently disabled in this release to prevent cluttering or repopulation." },
+    { status: 403 }
+  );
 
   const reset = req.nextUrl.searchParams.get("reset") === "true";
   const now = new Date();
