@@ -22,7 +22,7 @@ Modern software development relies heavily on third-party libraries—introducin
 
 *   **⚡ Live Production URL:** [https://cipherkavach-ai.vercel.app/](https://cipherkavach-ai.vercel.app/) *(Placeholder)*
 *   **💻 GitHub Source Code:** [https://github.com/venugopal-hue/CipherKavach-AI](https://github.com/venugopal-hue/CipherKavach-AI)
-*   **🎥 Project Walkthrough:** [YouTube Presentation Link](https://youtube.com) *(Placeholder)*
+*   **📰 Full Engineering Article:** [Read on Medium](https://medium.com/@venugopalrao1802/my-ai-security-runtime-burned-through-credits-faster-than-the-vulnerabilities-b5a75d3d46f7)
 
 ---
 
@@ -238,7 +238,7 @@ This project is open-source and licensed under the [MIT License](LICENSE).
 ## ✍️ Author & Lead Architect
 *   **Venugopal Rao** - Lead Product & Cybersecurity Architect
     *   *GitHub:* [@venugopal-hue](https://github.com/venugopal-hue)
-    *   *LinkedIn:* [Venugopal Rao](https://linkedin.com) *(Placeholder)*
+    *   *LinkedIn:* [Venugopal Rao](https://www.linkedin.com/in/venugopalrao2006india/)
 
 ---
 <p align="center">
