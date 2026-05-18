@@ -2234,6 +2234,13 @@ export default function AdminPage() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-auto">
+                    <button
+                      onClick={() => triggerMaintenanceConfirm("audit")}
+                      className="flex items-center gap-1.5 text-xs text-red-400 border border-red-500/20 bg-red-950/10 hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition-colors font-mono font-bold"
+                    >
+                      Clear Audit Logs
+                    </button>
+
                     <button onClick={loadAnalytics} disabled={analyticsLoading} className="flex items-center gap-1.5 text-xs text-gray-300 border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg transition-colors">
                       <RefreshCw className={`w-3.5 h-3.5 ${analyticsLoading ? "animate-spin" : ""}`} /> Refresh
                     </button>
