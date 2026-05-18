@@ -551,16 +551,24 @@ export default function DashboardPage() {
       const now = new Date();
 
       // Check if already seeded to avoid double writes
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef).catch(() => null);
+      if (userSnap && userSnap.exists() && userSnap.data()?.demoSeeded) {
+        console.log("[Firestore Demo Seeder] Demo data was already seeded for this user. Skipping dynamic operational seeder to prevent resurrecting deleted reports.");
+        return;
+      }
+
+      // Fallback check on scans to be extra safe
       const scansRef = collection(db, "scans");
       const q = query(scansRef, where("userId", "==", uid));
       const snap = await getDocs(q);
       if (snap.size > 0) {
         console.log("[Firestore Demo Seeder] Scans already exist for this user. Skipping dynamic operational seeder.");
+        await setDoc(userRef, { demoSeeded: true }, { merge: true }).catch(() => {});
         return;
       }
 
       // Populate user profile settings
-      const userRef = doc(db, "users", uid);
       await setDoc(userRef, {
         uid,
         email: "demo@cipherkavach.ai",
@@ -576,6 +584,7 @@ export default function DashboardPage() {
         nextResetAt: new Date(now.getTime() + 10 * 86400000).toISOString(),
         suspended: false,
         enterpriseEnabled: true,
+        demoSeeded: true, // Mark as seeded permanently so deleted items stay deleted
       }, { merge: true });
 
       // Populate Scans
@@ -1482,6 +1491,7 @@ export default function DashboardPage() {
   const loadSavedReports = useCallback(async (uid: string) => {
     setSavedReportsLoading(true);
     let firestoreList: any[] = [];
+    let firestoreFailed = false;
     try {
       console.log(`[Firestore Audit] Querying "savedReports" for userId == "${uid}"`);
       const q = query(collection(db, "savedReports"), where("userId", "==", uid));
@@ -1492,6 +1502,7 @@ export default function DashboardPage() {
       console.error(`[Firestore Audit] Failed to query "savedReports":`, e);
       console.warn("Failed to load saved reports from Firestore (permissions or connection):", e);
       setFirestoreRestricted(true);
+      firestoreFailed = true;
     }
 
     // Load local sandboxed reports
@@ -1503,13 +1514,21 @@ export default function DashboardPage() {
       console.warn("Failed to parse local storage saved reports:", e);
     }
 
-    // Combine lists, preferring firestore items where IDs match, and avoiding duplicate items
-    const combined = [...firestoreList];
-    (Array.isArray(localList) ? localList : []).forEach((item: any) => {
-      if (!(combined || []).some(c => c.id === item.id || (c.repoName === item.repoName && c.createdAt === item.createdAt))) {
-        combined.push(item);
+    // Single source of truth evaluation
+    let combined: any[] = [];
+    if (!firestoreFailed) {
+      // Trust Firestore completely when online to prevent resurrection of deleted reports
+      combined = [...firestoreList];
+      // Sync localStorage with Firestore to purge deleted records permanently
+      try {
+        localStorage.setItem('cipherkavach_saved_reports', JSON.stringify(firestoreList));
+      } catch (err) {
+        console.warn("Failed to sync localStorage with Firestore savedReports:", err);
       }
-    });
+    } else {
+      // Fallback to local storage only if Firestore is restricted/offline
+      combined = [...localList];
+    }
 
     // Cleanly sort chronologically (handling both server timestamps and local strings/dates)
     combined.sort((a, b) => {
@@ -1735,6 +1754,7 @@ export default function DashboardPage() {
         setHistory(sortedHistory);
       } else {
         console.warn(`[Firestore Audit] "scans" returned empty snapshot for user "${uid}"`);
+        setHistory([]);
       }
     } catch (e) {
       console.error(`[Firestore Audit] Failed to query "scans":`, e);
@@ -3219,10 +3239,20 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
 
         <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Link>
+            {scanResult ? (
+              <button
+                onClick={() => setScanResult(null)}
+                className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6 font-medium"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </button>
+            ) : (
+              <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-6 font-medium">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </Link>
+            )}
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 pb-2">Security Intelligence</h1>
             <p className="text-gray-400 mt-2 max-w-xl text-lg">Upload your dependency file to generate a runtime-tracked AI security briefing.</p>
           </div>
