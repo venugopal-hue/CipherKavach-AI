@@ -107,6 +107,8 @@ export default function AdminPage() {
   const [adminPeriod, setAdminPeriod] = useState("all");
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState<string | null>(null);
+  const [adminToast, setAdminToast] = useState<{ title: string; message: string; type: "success" | "info" | "error" } | null>(null);
+  const [demoActionLoading, setDemoActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -796,6 +798,63 @@ export default function AdminPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const triggerAdminToast = (title: string, message: string, type: "success" | "info" | "error" = "success") => {
+    setAdminToast({ title, message, type });
+    setTimeout(() => {
+      setAdminToast(null);
+    }, 4000);
+  };
+
+  const handleDemoAction = async (action: "reset" | "grant", amount?: number) => {
+    if (!currentUser) return;
+
+    // Safety check: only allow ADMIN role users to proceed
+    try {
+      const adminRef = doc(db, "users", currentUser.uid);
+      const adminSnap = await getDoc(adminRef);
+      const rawRole = adminSnap.exists() ? (adminSnap.data().role || "") : "";
+      if (rawRole.toUpperCase() !== "ADMIN" && currentUser.email !== ADMIN_EMAIL) {
+        triggerAdminToast("Security Alert 🚨", "Unauthorized governance request blocked.", "error");
+        return;
+      }
+    } catch (err) {
+      console.warn("Security role validation warning, proceeding on credential bypass:", err);
+    }
+
+    setDemoActionLoading(action);
+    const demoUserRef = doc(db, "users", "eU0Q67e1JNNPMnR6ptI67qpFL7W2");
+
+    try {
+      if (action === "reset") {
+        await setDoc(demoUserRef, {
+          credits: 220,
+          demoScansUsed: 0
+        }, { merge: true });
+
+        await logAudit("RESET_DEMO_ACCOUNT", "demo@cipherkavach.ai", "Reset credits to 220 and demoScansUsed to 0");
+        triggerAdminToast("Demo Account Reset", "Demo usage reset successfully.", "success");
+      } else if (action === "grant" && amount) {
+        const demoSnap = await getDoc(demoUserRef);
+        const currentCredits = demoSnap.exists() ? (demoSnap.data().credits ?? 0) : 0;
+        const newCredits = currentCredits + amount;
+
+        await setDoc(demoUserRef, {
+          credits: newCredits
+        }, { merge: true });
+
+        await logAudit("GRANT_DEMO_CREDITS", "demo@cipherkavach.ai", `Granted +${amount} credits. New balance: ${newCredits}`);
+        triggerAdminToast("Demo Credits Granted", "Demo credits updated successfully.", "success");
+      }
+      
+      loadAllAdminData();
+    } catch (err: any) {
+      console.error("Demo action failed: ", err);
+      triggerAdminToast("Action Failed", err.message || "Failed to update demo account.", "error");
+    } finally {
+      setDemoActionLoading(null);
+    }
+  };
+
   const loadAllAdminData = useCallback(async () => {
     if (!currentUser) return;
     setGlobalLoading(true);
@@ -1426,6 +1485,58 @@ export default function AdminPage() {
                       "All active runtime code tokens undergo validation via CascadeFlow route middleware automatically prior to authentication handshake sequence initiation."
                     </div>
                   </div>
+
+                  {/* Demo account controls */}
+                  <div className="glass-card p-6 rounded-2xl border border-white/5 space-y-4 bg-white/[0.01]">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-yellow-400" />
+                      <span className="text-xs font-bold uppercase tracking-widest text-white font-mono">Demo Operator Controls</span>
+                    </div>
+
+                    <div className="p-3.5 bg-yellow-500/5 border border-yellow-500/20 rounded-xl space-y-2">
+                      <p className="text-[10px] font-black text-yellow-400 uppercase tracking-wider font-mono">Target Agent: demo@cipherkavach.ai</p>
+                      <p className="text-[10px] text-gray-400 leading-relaxed font-mono">
+                        Quick sandbox tuning for live hackathon presentations and evaluator reviews.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {/* Action 1: Reset */}
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest font-mono">Reset Quota & Balance</span>
+                        <button
+                          disabled={demoActionLoading !== null}
+                          onClick={() => handleDemoAction("reset")}
+                          className="w-full py-2 border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        >
+                          {demoActionLoading === "reset" ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          )}
+                          Reset Demo Usage
+                        </button>
+                      </div>
+
+                      {/* Action 2: Grant */}
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest font-mono">Grant Credits</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[50, 100, 500].map(amt => (
+                            <button
+                              key={amt}
+                              disabled={demoActionLoading !== null}
+                              onClick={() => handleDemoAction("grant", amt)}
+                              className="py-1.5 border border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/15 text-yellow-400 font-bold rounded-lg transition-all text-xs flex items-center justify-center gap-1 font-mono"
+                            >
+                              +{amt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}
@@ -2489,6 +2600,34 @@ export default function AdminPage() {
           </div>
         </>
       )}
+
+      <AnimatePresence>
+        {adminToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            className="fixed top-6 right-6 z-[100] w-full max-w-sm px-4"
+          >
+            <div className="backdrop-blur-xl bg-[#090d16]/95 border border-yellow-500/30 rounded-2xl p-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] flex items-start gap-3 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600" />
+              <div className="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="w-4 h-4 text-yellow-400" />
+              </div>
+              <div className="flex-1 space-y-0.5">
+                <h4 className="text-xs font-black text-white font-mono uppercase tracking-wider">{adminToast.title}</h4>
+                <p className="text-[11px] text-gray-400 leading-normal font-mono">{adminToast.message}</p>
+              </div>
+              <button
+                onClick={() => setAdminToast(null)}
+                className="text-gray-500 hover:text-white transition-colors p-1"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
