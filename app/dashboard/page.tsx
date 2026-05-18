@@ -47,7 +47,7 @@ interface RepoMetadata {
 
 interface ScanResult {
   extracted_count: number;
-  vulnerabilities: Vuln[];
+  vulnerabilities?: Vuln[];
   overall_ai_summary?: string;
   remediation_script?: string;
   exploit_simulation?: string;
@@ -956,17 +956,17 @@ export default function DashboardPage() {
     const maxVulns = Math.max(...recentScans.map(s => s.vulnerabilities?.length || 0), 1);
 
     return recentScans.map((scan) => {
-      const count = scan.vulnerabilities?.length || 0;
+      const count = (scan.vulnerabilities || [])?.length || 0;
       const heightPercent = count === 0 ? 15 : Math.max(20, Math.min(100, (count / maxVulns) * 100));
 
       let highestSeverity = "NONE";
-      if (scan.vulnerabilities?.some(v => v.severity === "CRITICAL")) {
+      if ((scan.vulnerabilities || [])?.some(v => v.severity === "CRITICAL")) {
         highestSeverity = "CRITICAL";
-      } else if (scan.vulnerabilities?.some(v => v.severity === "HIGH")) {
+      } else if ((scan.vulnerabilities || [])?.some(v => v.severity === "HIGH")) {
         highestSeverity = "HIGH";
-      } else if (scan.vulnerabilities?.some(v => v.severity === "MEDIUM" || v.severity === "MODERATE")) {
+      } else if ((scan.vulnerabilities || [])?.some(v => v.severity === "MEDIUM" || v.severity === "MODERATE")) {
         highestSeverity = "MEDIUM";
-      } else if (scan.vulnerabilities?.length > 0) {
+      } else if ((scan.vulnerabilities || [])?.length > 0) {
         highestSeverity = "LOW";
       }
 
@@ -1977,8 +1977,8 @@ ${scanResult.remediation_script || "N/A"}
 ${scanResult.exploit_simulation || "N/A"}
 \`\`\`
 
-## Vulnerabilities Found (${scanResult.vulnerabilities.length})
-${scanResult.vulnerabilities.map(v => `- [${v.severity}] ${v.package} (${v.id})\n  ${v.description}`).join('\n\n')}
+## Vulnerabilities Found (${scanResult.(vulnerabilities || []).length})
+${scanResult.(vulnerabilities || []).map(v => `- [${v.severity}] ${v.package} (${v.id})\n  ${v.description}`).join('\n\n')}
     `;
     const blob = new Blob([content.trim()], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -2012,9 +2012,9 @@ THREAT SIMULATION
 ${scanResult.exploit_simulation || "N/A"}
 
 ----------------------------------------
-VULNERABILITIES FOUND (${scanResult.vulnerabilities.length})
+VULNERABILITIES FOUND (${scanResult.(vulnerabilities || []).length})
 ----------------------------------------
-${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n${v.description}`).join('\n\n')}
+${scanResult.(vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v.id})\n${v.description}`).join('\n\n')}
     `;
     const blob = new Blob([content.trim()], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -2700,8 +2700,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     <div key={i} onClick={() => loadHistoryResult(hist)} className="glass-card p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all hover:scale-[1.02]">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-gray-400 font-mono">{new Date(hist.timestamp || "").toLocaleTimeString()}</span>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${hist.vulnerabilities.length > 0 ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-green-500/20 text-green-400 border-green-500/30"}`}>
-                          {hist.vulnerabilities.length} Vulns
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${hist.(vulnerabilities || []).length > 0 ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-green-500/20 text-green-400 border-green-500/30"}`}>
+                          {hist.(vulnerabilities || []).length} Vulns
                         </span>
                       </div>
                       <p className="text-sm font-medium truncate font-mono text-white/90">{hist.repoMetadata?.name || "package.json"}</p>
@@ -3406,8 +3406,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                             <p className="text-[10px] text-gray-500 font-mono mt-0.5">{new Date(scan.timestamp || Date.now()).toLocaleDateString()}</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold px-2 py-1 rounded border ${(scan.vulnerabilities || []).some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : (scan.vulnerabilities || []).some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
-                              {(scan.vulnerabilities || []).length} CVEs
+                            <span className={`text-xs font-bold px-2 py-1 rounded border ${((scan.vulnerabilities || []) || []).some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : ((scan.vulnerabilities || []) || []).some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
+                              {((scan.vulnerabilities || []) || []).length} CVEs
                             </span>
                             <button
                               onClick={(e) => {
@@ -4316,7 +4316,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[url('/grid.svg')] bg-center" style={{ backgroundSize: '20px 20px' }}>
                       <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tl-sm p-4 w-fit max-w-[90%] backdrop-blur-sm shadow-md">
                         <p className="text-sm text-purple-100 font-light leading-relaxed">
-                          I am CipherKavach, orchestrated by CascadeFlow. I've analyzed your dependencies and found {stats.total} vulnerabilities. How can I assist you with remediation today?
+                          I am CipherKavach, orchestrated by CascadeFlow. I've analyzed your dependencies and found {stats.total} (vulnerabilities || []). How can I assist you with remediation today?
                         </p>
                       </div>
 
@@ -4366,7 +4366,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           type="text"
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Ask about these vulnerabilities..."
+                          placeholder="Ask about these (vulnerabilities || [])..."
                           className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-gray-600"
                           disabled={isChatting}
                         />
