@@ -2700,8 +2700,8 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     <div key={i} onClick={() => loadHistoryResult(hist)} className="glass-card p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all hover:scale-[1.02]">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-gray-400 font-mono">{new Date(hist.timestamp || "").toLocaleTimeString()}</span>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${hist.(vulnerabilities || []).length > 0 ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-green-500/20 text-green-400 border-green-500/30"}`}>
-                          {hist.(vulnerabilities || []).length} Vulns
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${(hist.vulnerabilities || []).length > 0 ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-green-500/20 text-green-400 border-green-500/30"}`}>
+                          {(hist.vulnerabilities || []).length} Vulns
                         </span>
                       </div>
                       <p className="text-sm font-medium truncate font-mono text-white/90">{hist.repoMetadata?.name || "package.json"}</p>
