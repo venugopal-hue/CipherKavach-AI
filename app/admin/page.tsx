@@ -833,6 +833,7 @@ export default function AdminPage() {
         }, { merge: true });
 
         await logAudit("RESET_DEMO_ACCOUNT", "demo@cipherkavach.ai", "Reset credits to 220 and demoScansUsed to 0");
+        setOperators(p => p.map(u => u.uid === "eU0Q67e1JNNPMnR6ptI67qpFL7W2" ? { ...u, credits: 220, demoScansUsed: 0 } : u));
         triggerAdminToast("Demo Account Reset", "Demo usage reset successfully.", "success");
       } else if (action === "grant" && amount) {
         const demoSnap = await getDoc(demoUserRef);
@@ -844,6 +845,7 @@ export default function AdminPage() {
         }, { merge: true });
 
         await logAudit("GRANT_DEMO_CREDITS", "demo@cipherkavach.ai", `Granted +${amount} credits. New balance: ${newCredits}`);
+        setOperators(p => p.map(u => u.uid === "eU0Q67e1JNNPMnR6ptI67qpFL7W2" ? { ...u, credits: newCredits } : u));
         triggerAdminToast("Demo Credits Granted", "Demo credits updated successfully.", "success");
       }
       

@@ -451,6 +451,11 @@ export default function DashboardPage() {
           localStorage.setItem(`cipherkavach_device_scans_${fp}`, "0");
         }
 
+        if (data.demoScansUsed === 0) {
+          const fp = getDeviceFingerprint();
+          localStorage.setItem(`cipherkavach_device_scans_${fp}`, "0");
+        }
+
         if (!data.createdAt) {
           updates.createdAt = created;
           updated = true;
