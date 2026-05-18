@@ -3406,7 +3406,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                             <p className="text-[10px] text-gray-500 font-mono mt-0.5">{new Date(scan.timestamp || Date.now()).toLocaleDateString()}</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold px-2 py-1 rounded border ${(scan.vulnerabilities || []).some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : scan.vulnerabilities.some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
+                            <span className={`text-xs font-bold px-2 py-1 rounded border ${(scan.vulnerabilities || []).some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : (scan.vulnerabilities || []).some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
                               {(scan.vulnerabilities || []).length} CVEs
                             </span>
                             <button
