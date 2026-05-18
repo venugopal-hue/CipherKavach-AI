@@ -2108,7 +2108,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
           <div key={i} className="flex items-start gap-2 mt-2 mb-1">
             <span className="text-purple-400 mt-1 shrink-0">•</span>
             <span className="flex-1 leading-relaxed text-gray-300 font-medium">
-              {formatInlineStyles(line.replace(/^[-*]\s/, ''))}
+              {formatInlineStyles(String(line || "").replace(/^[-*]\s/, ''))}
             </span>
           </div>
         );
@@ -2297,7 +2297,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                                     </p>
                                     <div className="flex items-center justify-between pt-1">
                                       <span className="text-[9px] text-cyan-400/80 font-mono uppercase bg-cyan-400/5 px-1.5 py-0.5 rounded border border-cyan-400/10">
-                                        {n.category.replace("_", " ")}
+                                        {String(n.category || "").replace("_", " ")}
                                       </span>
                                       <div className="flex gap-2">
                                         {!n.read && (
@@ -3882,10 +3882,10 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                         </div>
                       </div>
                       <div className="p-4 flex-1 overflow-y-auto font-mono text-xs text-green-400/80 space-y-2 custom-scrollbar bg-[#050505]">
-                        {telemetry.map((log, i) => (
+                        {(telemetry || []).map((log, i) => (
                           <div key={i} className="flex gap-3 hover:bg-white/5 px-2 py-1 rounded transition-colors">
                             <span className="text-gray-500 shrink-0 opacity-50">{`>`}</span>
-                            <span className="break-words" dangerouslySetInnerHTML={{ __html: log.replace(/(\[.*?\])/, '<span class="text-blue-400/80">$1</span>').replace(/(gpt-4o-mini|gpt-4o|CascadeFlow)/g, '<span class="text-purple-400 font-bold">$1</span>') }} />
+                            <span className="break-words" dangerouslySetInnerHTML={{ __html: String(log || "").replace(/(\[.*?\])/, '<span class="text-blue-400/80">$1</span>').replace(/(gpt-4o-mini|gpt-4o|CascadeFlow)/g, '<span class="text-purple-400 font-bold">$1</span>') }} />
                           </div>
                         ))}
                         <div ref={telemetryEndRef} />
