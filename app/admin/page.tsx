@@ -1050,9 +1050,13 @@ export default function AdminPage() {
         data.sort((a, b) => (b.redeemedAt?.toDate?.().getTime() ?? 0) - (a.redeemedAt?.toDate?.().getTime() ?? 0));
         setRedemptions(data);
       }
-      if (scansSnap.status === "fulfilled") {
-        setTotalScans(scansSnap.value.size);
+      let computedScansCount = 0;
+      if (scansSnap.status === "fulfilled" && scansSnap.value.size > 0) {
+        computedScansCount = scansSnap.value.size;
+      } else if (usersSnap.status === "fulfilled") {
+        computedScansCount = usersSnap.value.docs.reduce((acc, d) => acc + (d.data().totalScans || 0), 0);
       }
+      setTotalScans(computedScansCount);
       if (auditSnap.status === "fulfilled") {
         const usersDocs = usersSnap.status === "fulfilled" ? usersSnap.value.docs : [];
         const nameMap: Record<string, string> = {};

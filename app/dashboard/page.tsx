@@ -1553,6 +1553,29 @@ export default function DashboardPage() {
         console.warn("Failed to save history locally:", e);
       }
 
+      // Write to scans collection in Firestore so it propagates live to the Admin Console
+      if (currentUser) {
+        try {
+          const vuls = data.vulnerabilities || [];
+          let severity = "LOW";
+          if (vuls.some((v: any) => v.severity === "CRITICAL")) severity = "CRITICAL";
+          else if (vuls.some((v: any) => v.severity === "HIGH")) severity = "HIGH";
+          else if (vuls.some((v: any) => v.severity === "MODERATE" || v.severity === "MEDIUM")) severity = "MEDIUM";
+
+          await addDoc(collection(db, "scans"), {
+            userId: currentUser.uid,
+            package: targetName,
+            severity,
+            threatScore: data.threatScore || 0,
+            timestamp: new Date().toISOString(),
+            vulnerabilitiesCount: vuls.length
+          });
+          console.log("[Firestore Audit] Saved scan document successfully to Firestore.");
+        } catch (err) {
+          console.warn("Failed to write scan to Firestore collection:", err);
+        }
+      }
+
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred during scanning.");
       const targetName = githubRepoData?.name || targetFile.name || "package.json";
