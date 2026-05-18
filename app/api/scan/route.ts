@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     const vulnerabilities: Array<Record<string, unknown>> = [];
     const seenVulnIds = new Set<string>();
 
-    // For hackathon/MVP, we'll limit the number of checks to avoid rate limits or long processing times
+    // For standard demo/MVP, we'll limit the number of checks to avoid rate limits or long processing times
     const maxDepsToCheck = 20; 
     const depsToCheck = depEntries.slice(0, maxDepsToCheck);
 

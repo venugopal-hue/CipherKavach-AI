@@ -244,7 +244,7 @@ export async function GET(req: NextRequest) {
     { code: "CIPHER-100", credits: 100, enterprise: false, replayAccess: false, usageLimit: 50, redeemedCount: 14, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() },
     { code: "ENTERPRISE-PRO", credits: 250, enterprise: true, replayAccess: true, usageLimit: 10, redeemedCount: 4, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() },
     { code: "CASCADEFLOW-VIP", credits: 150, enterprise: true, replayAccess: true, usageLimit: 25, redeemedCount: 18, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() },
-    { code: "HACKATHON-2026", credits: 200, enterprise: true, replayAccess: true, usageLimit: 100, redeemedCount: 65, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() },
+    { code: "CIPHERKAVACH-2026", credits: 200, enterprise: true, replayAccess: true, usageLimit: 100, redeemedCount: 65, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() },
     { code: "CIPHER-STARTER", credits: 50, enterprise: false, replayAccess: false, usageLimit: 200, redeemedCount: 145, status: "active", expiry: new Date(now.getTime() + 90 * 86400000).toISOString() }
   ];
 

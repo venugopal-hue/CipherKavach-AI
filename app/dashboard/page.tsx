@@ -271,7 +271,7 @@ export default function DashboardPage() {
     "CIPHER-100": { credits: 100, enterprise: false, replayAccess: false, label: "+100 AI Credits" },
     "ENTERPRISE-PRO": { credits: 250, enterprise: true, replayAccess: true, label: "Enterprise PRO + 250 Credits" },
     "CASCADEFLOW-VIP": { credits: 150, enterprise: true, replayAccess: true, label: "CascadeFlow VIP + 150 Credits" },
-    "HACKATHON-2026": { credits: 200, enterprise: true, replayAccess: true, label: "Hackathon Bundle + 200 Credits" },
+    "CIPHERKAVACH-2026": { credits: 200, enterprise: true, replayAccess: true, label: "Special Bundle + 200 Credits" },
     "CIPHER-STARTER": { credits: 50, enterprise: false, replayAccess: false, label: "+50 AI Credits" },
   };
 

@@ -199,15 +199,15 @@ CipherKavach AI is built to replicate the controls required by large security op
 
 ---
 
-## 🔑 Hackathon Presentation & Demo Access
+## 🔑 Sandboxed Demo Access
 
-For hackathon presentation judges, evaluators, and security operators, a pre-seeded Admin & Operator sandbox account is available.
+For evaluators, developers, and security operators, a pre-seeded Admin & Operator sandbox account is available.
 
 *   **Demo Email:** `demo@cipherkavach.ai`
 *   **Demo Password:** `Cipher123`
 
 > [!NOTE]
-> *This environment is strictly intended for hackathon evaluations, screenshots, and live presentations. It features rate-limiting bypasses to ensure a seamless auditing showcase.*
+> *This environment is intended for evaluation and demonstration purposes. It features rate-limiting bypasses to ensure a seamless showcase.*
 
 ---
 
@@ -242,5 +242,5 @@ This project is open-source and licensed under the [MIT License](LICENSE).
 
 ---
 <p align="center">
-  Developed with ❤️ for the 2026 Developer Hackathon showcase.
+  Developed with ❤️ as a premium secure threat intelligence platform.
 </p>
