@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #030712;
+  --color-foreground: #f9fafb;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed;
+}
+
+@layer base {
+  :root {
+    --background: #030712;
+    --foreground: #f9fafb;
+    --card: #111827;
+    --card-foreground: #f9fafb;
+    --border: #1f2937;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --accent: #8b5cf6;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+    --success: #10b981;
+    --success-foreground: #ffffff;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .glow-text {
+    text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+  
+  .glow-box {
+    box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.4);
+  }
+
+  /* Custom Cyberpunk Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 4px;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: #030712 !important;
+  }
+  .glass-card {
+    background: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  /* Hide non-printable UI elements */
+  nav, button, .sticky {
+    display: none !important;
+  }
+}

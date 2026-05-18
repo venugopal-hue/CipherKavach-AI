@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the user is the owner of the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function to check if the request matches the authenticated user's ID in the data payload
+    function matchesUserField() {
+      return isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Helper function to check if user is the admin
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'venugopalrao1802@gmail.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'
+      );
+    }
+
+    // --- USERS COLLECTION ---
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    // --- SAVED REPORTS COLLECTION ---
+    match /savedReports/{reportId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && matchesUserField();
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // --- SCANS HISTORY COLLECTION ---
+    match /scans/{scanId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && matchesUserField();
+      allow update, delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // --- CREDIT REQUESTS COLLECTION ---
+    match /creditRequests/{requestId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && matchesUserField();
+      allow update, delete: if isAdmin();
+    }
+
+    // --- RUNTIME ACCESS CODES COLLECTION ---
+    match /runtimeCodes/{codeId} {
+      allow read: if isAuthenticated();
+      allow create, delete: if isAdmin();
+      allow update: if isAuthenticated(); // Allowed for redemption decrements
+    }
+
+    // --- REDEMPTIONS HISTORY COLLECTION ---
+    match /redemptions/{redemptionId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && matchesUserField();
+      allow update, delete: if isAdmin();
+    }
+
+    // --- AUDIT LOGS COLLECTION ---
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // --- NOTIFICATIONS COLLECTION ---
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create, update, delete: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin() || resource.data.userId == request.auth.uid);
+    }
+  }
+}
