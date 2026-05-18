@@ -827,7 +827,8 @@ export default function DashboardPage() {
     // Save locally
     try {
       const local = localStorage.getItem('cipherkavach_credit_requests');
-      const existing = local ? JSON.parse(local) : [];
+      const parsed = local ? JSON.parse(local) : [];
+      const existing = Array.isArray(parsed) ? parsed : [];
       localStorage.setItem('cipherkavach_credit_requests', JSON.stringify([requestPayload, ...existing]));
     } catch (err) {
       console.warn("Failed to save request locally:", err);
@@ -1309,7 +1310,8 @@ export default function DashboardPage() {
     // Always merge with local sandboxed notifications
     try {
       const local = localStorage.getItem(`cipherkavach_notifications_${uid}`);
-      const localList: NotificationItem[] = local ? JSON.parse(local) : [];
+      const parsed = local ? JSON.parse(local) : [];
+      const localList: NotificationItem[] = Array.isArray(parsed) ? parsed : [];
 
       // Combine lists and deduplicate by id
       const combined = [...list, ...localList];
@@ -1363,7 +1365,8 @@ export default function DashboardPage() {
       // Persist to localStorage sandbox
       try {
         const local = localStorage.getItem(`cipherkavach_notifications_${uid}`);
-        const localList: NotificationItem[] = local ? JSON.parse(local) : [];
+        const parsed = local ? JSON.parse(local) : [];
+        const localList: NotificationItem[] = Array.isArray(parsed) ? parsed : [];
         const fullItem: NotificationItem = { id: newId, ...item };
         localList.push(fullItem);
         localStorage.setItem(`cipherkavach_notifications_${uid}`, JSON.stringify(localList));
@@ -1385,7 +1388,8 @@ export default function DashboardPage() {
     if (id.startsWith("notif_")) {
       try {
         const local = localStorage.getItem(`cipherkavach_notifications_${uid}`);
-        const localList: NotificationItem[] = local ? JSON.parse(local) : [];
+        const parsed = local ? JSON.parse(local) : [];
+        const localList: NotificationItem[] = Array.isArray(parsed) ? parsed : [];
         const updated = localList.map(n => n.id === id ? { ...n, read: true } : n);
         localStorage.setItem(`cipherkavach_notifications_${uid}`, JSON.stringify(updated));
       } catch (err) {
@@ -1412,7 +1416,8 @@ export default function DashboardPage() {
     if (id.startsWith("notif_")) {
       try {
         const local = localStorage.getItem(`cipherkavach_notifications_${uid}`);
-        const localList: NotificationItem[] = local ? JSON.parse(local) : [];
+        const parsed = local ? JSON.parse(local) : [];
+        const localList: NotificationItem[] = Array.isArray(parsed) ? parsed : [];
         const filtered = localList.filter(n => n.id !== id);
         localStorage.setItem(`cipherkavach_notifications_${uid}`, JSON.stringify(filtered));
       } catch (err) {
@@ -1500,7 +1505,7 @@ export default function DashboardPage() {
 
     // Combine lists, preferring firestore items where IDs match, and avoiding duplicate items
     const combined = [...firestoreList];
-    localList.forEach((item: any) => {
+    (Array.isArray(localList) ? localList : []).forEach((item: any) => {
       if (!(combined || []).some(c => c.id === item.id || (c.repoName === item.repoName && c.createdAt === item.createdAt))) {
         combined.push(item);
       }
@@ -1557,7 +1562,8 @@ export default function DashboardPage() {
     let updatedLocalList: any[] = [];
     try {
       const local = localStorage.getItem('cipherkavach_saved_reports');
-      const existing = local ? JSON.parse(local) : [];
+      const parsed = local ? JSON.parse(local) : [];
+      const existing = Array.isArray(parsed) ? parsed : [];
       updatedLocalList = [reportPayload, ...existing];
       localStorage.setItem('cipherkavach_saved_reports', JSON.stringify(updatedLocalList));
     } catch (e) {
@@ -1583,7 +1589,7 @@ export default function DashboardPage() {
         const local = localStorage.getItem('cipherkavach_saved_reports');
         if (local) {
           const parsed = JSON.parse(local);
-          const finalLocal = parsed.map((r: any) => r.id === localId ? { ...r, id: docRef.id } : r);
+          const finalLocal = (Array.isArray(parsed) ? parsed : []).map((r: any) => r.id === localId ? { ...r, id: docRef.id } : r);
           localStorage.setItem('cipherkavach_saved_reports', JSON.stringify(finalLocal));
         }
       } catch (e) {
@@ -1635,11 +1641,12 @@ export default function DashboardPage() {
       try {
         const local = localStorage.getItem('cipherkavach_saved_reports');
         if (local) {
-          const filtered = JSON.parse(local).filter((r: any) => r.id !== targetId);
+          const parsed = JSON.parse(local);
+          const filtered = (Array.isArray(parsed) ? parsed : []).filter((r: any) => r.id !== targetId);
           localStorage.setItem('cipherkavach_saved_reports', JSON.stringify(filtered));
           setSavedReports(filtered);
         } else {
-          setSavedReports(prev => prev.filter(r => r.id !== targetId));
+          setSavedReports(prev => (prev || []).filter(r => r.id !== targetId));
         }
       } catch (e) {
         setSavedReports(prev => prev.filter(r => r.id !== targetId));
@@ -1800,7 +1807,7 @@ export default function DashboardPage() {
       setTelemetry(prev => [...prev, ...(data.telemetry || [])]);
 
       // Save to History
-      const newHistory = [resultWithTime, ...history].slice(0, 10);
+      const newHistory = [resultWithTime, ...(history || [])].slice(0, 10);
       setHistory(newHistory);
 
       const targetName = githubRepoData?.name || targetFile.name || "package.json";
@@ -2317,7 +2324,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                         </div>
 
                         {/* Footer Actions */}
-                        {notifications.length > 0 && (
+                        {(notifications || []).length > 0 && (
                           <div className="p-3 border-t border-white/5 bg-black/40 flex items-center justify-between shrink-0">
                             <button
                               onClick={clearAllNotifications}
@@ -2328,7 +2335,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                             <button
                               onClick={() => {
                                 // Mark all as read helper
-                                notifications.forEach(n => { if (!n.read) markNotificationRead(n.id); });
+                                (notifications || []).forEach(n => { if (!n.read) markNotificationRead(n.id); });
                               }}
                               className="text-[10px] text-gray-400 hover:text-white font-mono uppercase tracking-wider transition-colors font-bold"
                             >
