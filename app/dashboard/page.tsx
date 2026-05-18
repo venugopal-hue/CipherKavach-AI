@@ -174,7 +174,7 @@ export default function DashboardPage() {
     }
     prevReplayRef.current = replayIsPlaying;
   }, [replayIsPlaying]);
-  
+
   // Feature: Scan History
   const [history, setHistory] = useState<ScanResult[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -199,7 +199,7 @@ export default function DashboardPage() {
   const telemetryEndRef = useRef<HTMLDivElement>(null);
 
   // Feature: Chat Terminal
-  const [chatMessages, setChatMessages] = useState<{role: string, content: string}[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: string, content: string }[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [isChatting, setIsChatting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -253,7 +253,7 @@ export default function DashboardPage() {
   const [userCredits, setUserCredits] = useState(50);
   const [isEnterprise, setIsEnterprise] = useState(false);
   const [redeemCode, setRedeemCode] = useState("");
-  const [redeemStatus, setRedeemStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
+  const [redeemStatus, setRedeemStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [redeemMessage, setRedeemMessage] = useState("");
 
   // ADMIN CONSOLE STATE
@@ -262,16 +262,16 @@ export default function DashboardPage() {
   const [adminEnterprise, setAdminEnterprise] = useState(false);
   const [adminReplay, setAdminReplay] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedCodes, setGeneratedCodes] = useState<{code: string; credits: number; enterprise: boolean}[]>([]);
+  const [generatedCodes, setGeneratedCodes] = useState<{ code: string; credits: number; enterprise: boolean }[]>([]);
   const [copiedCode, setCopiedCode] = useState("");
 
   // Hardcoded runtime codes — add to Firestore for production
   const RUNTIME_CODES: Record<string, { credits: number; enterprise: boolean; replayAccess: boolean; label: string }> = {
-    "CIPHER-100":        { credits: 100, enterprise: false, replayAccess: false, label: "+100 AI Credits" },
-    "ENTERPRISE-PRO":    { credits: 250, enterprise: true,  replayAccess: true,  label: "Enterprise PRO + 250 Credits" },
-    "CASCADEFLOW-VIP":   { credits: 150, enterprise: true,  replayAccess: true,  label: "CascadeFlow VIP + 150 Credits" },
-    "HACKATHON-2026":    { credits: 200, enterprise: true,  replayAccess: true,  label: "Hackathon Bundle + 200 Credits" },
-    "CIPHER-STARTER":   { credits: 50,  enterprise: false, replayAccess: false, label: "+50 AI Credits" },
+    "CIPHER-100": { credits: 100, enterprise: false, replayAccess: false, label: "+100 AI Credits" },
+    "ENTERPRISE-PRO": { credits: 250, enterprise: true, replayAccess: true, label: "Enterprise PRO + 250 Credits" },
+    "CASCADEFLOW-VIP": { credits: 150, enterprise: true, replayAccess: true, label: "CascadeFlow VIP + 150 Credits" },
+    "HACKATHON-2026": { credits: 200, enterprise: true, replayAccess: true, label: "Hackathon Bundle + 200 Credits" },
+    "CIPHER-STARTER": { credits: 50, enterprise: false, replayAccess: false, label: "+50 AI Credits" },
   };
 
   // Operator Profile Identity States
@@ -344,7 +344,7 @@ export default function DashboardPage() {
     const isAdminUser = currentUser?.email === ADMIN_EMAIL;
     const initialDisplayName = inferDisplayNameFromEmail(currentUser?.email || "");
     const localProfileKey = `cipherkavach_profile_${uid}`;
-    
+
     let localProfile: any = null;
     try {
       const storedProfile = localStorage.getItem(localProfileKey);
@@ -393,14 +393,14 @@ export default function DashboardPage() {
           const currentCredits = data.credits ?? 50;
           setUserCredits(currentCredits);
           setIsEnterprise(data.enterpriseEnabled ?? false);
-          
+
           if (currentCredits <= 0) {
             triggerNotification("Runtime Credits Exhausted", "All AI analysis credits have been exhausted. Please redeem a code or request credits.", "credit_exhausted", "error");
           } else if (currentCredits <= 5) {
             triggerNotification("Low Credits Warning", `Session credits are running low (${currentCredits} remaining). Request an extension.`, "credit_low", "warning");
           }
         }
-        
+
         let updated = false;
         const updates: any = {};
 
@@ -427,7 +427,7 @@ export default function DashboardPage() {
         let demoScans = data.demoScansUsed ?? 0;
         let created = getISOString(data.createdAt ?? data.registeredAt);
         let nextReset = data.nextResetAt ? getISOString(data.nextResetAt) : null;
-        
+
         if (!nextReset) {
           const createdDate = new Date(created);
           createdDate.setDate(createdDate.getDate() + 31);
@@ -445,7 +445,7 @@ export default function DashboardPage() {
           updates.nextResetAt = nextReset;
           updates.demoScansUsed = 0;
           updated = true;
-          
+
           const fp = getDeviceFingerprint();
           localStorage.setItem(`cipherkavach_device_scans_${fp}`, "0");
         }
@@ -581,7 +581,7 @@ export default function DashboardPage() {
       // Populate Scans
       const packages = ["lodash", "axios", "minimist", "ws", "express", "react", "next", "socket.io", "async", "ip"];
       const cves = ["CVE-2020-8203", "CVE-2020-28168", "CVE-2021-3918", "CVE-2021-32803", "CVE-2022-24999", "CVE-2023-42282"];
-      
+
       for (let i = 0; i < 15; i++) {
         const scanDate = new Date(now.getTime() - (15 - i) * 86400000 - Math.random() * 12 * 3600000);
         const pkg = packages[i % packages.length];
@@ -641,7 +641,7 @@ export default function DashboardPage() {
       }
 
       console.log("[Firestore Demo Seeder] Dynamic operational seeding completed successfully!");
-      
+
       // Reload stats after seeding completes
       fetchFirebaseHistory(uid);
       loadSavedReports(uid);
@@ -732,7 +732,7 @@ export default function DashboardPage() {
         demoScansUsed: newDemoScansUsed,
         lastScanAt: serverTimestamp()
       }, { merge: true });
-      
+
       console.log(`[consumeCredits] Successfully processed ${actionType}. Cost: ${finalCost}. totalScans: ${newTotalScans}. demoScansUsed: ${newDemoScansUsed}. Firestore updated.`);
     } catch (err) {
       console.error(`[consumeCredits] Firestore write failed for ${actionType}:`, err);
@@ -743,7 +743,7 @@ export default function DashboardPage() {
       await addDoc(collection(db, "auditLogs"), {
         action: finalCost > 0 ? `Runtime credits deducted` : `Enterprise quota bypassed`,
         target: actionType,
-        detail: finalCost > 0 
+        detail: finalCost > 0
           ? `Deducted ${finalCost} credits. New balance: ${newCredits}. totalScans: ${newTotalScans}`
           : `Enterprise quota bypassed. totalScans: ${newTotalScans}`,
         actor: currentUser.email || "Operator",
@@ -774,7 +774,7 @@ export default function DashboardPage() {
     setIsSavingProfile(true);
     const nameVal = editDisplayName.trim() || inferDisplayNameFromEmail(currentUser.email || "");
     const avatarVal = editAvatarUrl.trim() || `https://ui-avatars.com/api/?name=${encodeURIComponent(nameVal)}&background=0f1219&color=60a5fa&size=128`;
-    
+
     const updates = {
       displayName: nameVal,
       avatarUrl: avatarVal
@@ -792,13 +792,13 @@ export default function DashboardPage() {
       const userRef = doc(db, "users", currentUser.uid);
       await setDoc(userRef, updates, { merge: true });
       setShowEditProfileModal(false);
-      
+
       const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       setTelemetry(prev => [...prev, `[${ts}] Operator profile updated successfully in Firestore database.`, `[${ts}] Display Name set: ${nameVal}`]);
     } catch (err) {
       console.warn("Firestore profile save restricted (Missing or insufficient permissions), using sandboxed local storage:", err);
       setShowEditProfileModal(false);
-      
+
       const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       setTelemetry(prev => [...prev, `[${ts}] Operator profile updated successfully in local sandboxed console.`, `[${ts}] Display Name set: ${nameVal}`]);
     } finally {
@@ -859,7 +859,7 @@ export default function DashboardPage() {
       );
     } catch (err) {
       console.warn("Firestore credit request write restricted (insufficient permissions), sandboxing locally:", err);
-      
+
       triggerNotification(
         "Credit Request Registered",
         `Requested +${requestCreditsAmt} credits for project "${requestProjectName || 'Default'}". Status: PENDING (Sandboxed).`,
@@ -922,7 +922,7 @@ export default function DashboardPage() {
       setUserCredits(newCredits);
       if (benefit.enterprise) setIsEnterprise(true);
       setRedeemStatus("success"); setRedeemMessage(benefit.label); setRedeemCode("");
-      
+
       triggerNotification("License Key Activated", `Successfully redeemed key ${code} and loaded ${benefit.credits} AI credits to operator session.`, "code_redeemed", "success");
       if (benefit.enterprise) {
         triggerNotification("Enterprise Access Enabled", "Vulnerability propagation dashboard upgraded to enterprise grade.", "enterprise_enabled", "success");
@@ -958,7 +958,7 @@ export default function DashboardPage() {
     return recentScans.map((scan) => {
       const count = scan.vulnerabilities?.length || 0;
       const heightPercent = count === 0 ? 15 : Math.max(20, Math.min(100, (count / maxVulns) * 100));
-      
+
       let highestSeverity = "NONE";
       if (scan.vulnerabilities?.some(v => v.severity === "CRITICAL")) {
         highestSeverity = "CRITICAL";
@@ -986,7 +986,7 @@ export default function DashboardPage() {
     const allScans = [...history];
     const allSaved = [...savedReports];
     const totalScans = allScans.length;
-    
+
     const allVulns: Vuln[] = [];
     allScans.forEach(s => { if (s.vulnerabilities) allVulns.push(...s.vulnerabilities); });
     allSaved.forEach(s => { if (s.vulnerabilities) allVulns.push(...s.vulnerabilities); });
@@ -1151,10 +1151,10 @@ export default function DashboardPage() {
         // Register the new user
         const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, authPassword);
         const user = credential.user;
-        
+
         // Save profile in Firebase auth
         await updateProfile(user, { displayName: authFullName.trim() });
-        
+
         // Save initial user doc in Firestore
         const nowStr = new Date().toISOString();
         const calculateResetDate = () => {
@@ -1163,7 +1163,7 @@ export default function DashboardPage() {
           return d.toISOString();
         };
         const isAdminUser = normalizedEmail === ADMIN_EMAIL;
-        
+
         const defaultDoc = {
           uid: user.uid,
           email: normalizedEmail,
@@ -1181,13 +1181,13 @@ export default function DashboardPage() {
           lastScanAt: null,
           plan: isAdminUser ? "ENTERPRISE" : "FREE"
         };
-        
+
         try {
           await setDoc(doc(db, "users", user.uid), defaultDoc);
         } catch (setErr) {
           console.warn("Initial signup Firestore save failed:", setErr);
         }
-        
+
         setShowAuthModal(false);
       } else {
         // Log in
@@ -1195,7 +1195,7 @@ export default function DashboardPage() {
         setShowAuthModal(false);
       }
     } catch (err: unknown) {
-      const code = (err as {code?: string}).code;
+      const code = (err as { code?: string }).code;
       console.warn("Authentication warning:", err);
       if (code === "auth/email-already-in-use") {
         setAuthError("Email already registered. Try signing in.");
@@ -1206,7 +1206,7 @@ export default function DashboardPage() {
       } else if (code === "auth/invalid-email") {
         setAuthError("Invalid email address format.");
       } else {
-        setAuthError((err as {message?: string}).message || "Authentication failed. Try again.");
+        setAuthError((err as { message?: string }).message || "Authentication failed. Try again.");
       }
     } finally {
       setIsSigningIn(false);
@@ -1217,7 +1217,7 @@ export default function DashboardPage() {
     const id = vuln.id || "CVE-UNKNOWN";
     const pkg = vuln.packageName || "unknown";
     const sev = vuln.severity?.toUpperCase() || "HIGH";
-    
+
     // Compute score based on severity and details
     let score = 75;
     if (sev === "CRITICAL") score = 92 + Math.floor(Math.random() * 7);
@@ -1231,7 +1231,7 @@ export default function DashboardPage() {
     let attackPath = `External Attacker ➔ Target Route Ingress ➔ Dependency Parsing Context (${pkg}) ➔ Remote Command Execution / Data Egress`;
     let impact = `Critical compromise of hosting application namespace, unauthorized access to secure operational registers, and potential privilege escalation leading to full node acquisition.`;
     let remediation = `Immediately upgrade ${pkg} to the latest stable patch release. Ensure active routing boundaries are filtered using CascadeFlow WAF middleware configurations.`;
-    
+
     if (id.includes("2023") || id.includes("2024")) {
       summary = `Modern exploit vector exposing serialization interfaces in ${pkg}. Insecure structural parsing triggers unexpected behavior in the Node memory state.`;
     }
@@ -1275,10 +1275,10 @@ export default function DashboardPage() {
       await signInWithEmailAndPassword(auth, DEMO_EMAIL, DEMO_PASSWORD);
       setShowAuthModal(false);
     } catch (err: unknown) {
-      const code = (err as {code?: string}).code;
+      const code = (err as { code?: string }).code;
       if (code === "auth/user-not-found" || code === "auth/invalid-credential") {
         try { await createUserWithEmailAndPassword(auth, DEMO_EMAIL, DEMO_PASSWORD); setShowAuthModal(false); }
-        catch (e2: unknown) { setAuthError((e2 as {message?: string}).message || "Demo setup failed."); }
+        catch (e2: unknown) { setAuthError((e2 as { message?: string }).message || "Demo setup failed."); }
       } else { setAuthError("Demo access failed. Please try Google login."); }
     } finally { setIsSigningIn(false); }
   };
@@ -1310,14 +1310,14 @@ export default function DashboardPage() {
     try {
       const local = localStorage.getItem(`cipherkavach_notifications_${uid}`);
       const localList: NotificationItem[] = local ? JSON.parse(local) : [];
-      
+
       // Combine lists and deduplicate by id
       const combined = [...list, ...localList];
       const uniqueMap: Record<string, NotificationItem> = {};
       combined.forEach(n => {
         if (n && n.id) uniqueMap[n.id] = n;
       });
-      
+
       const finalSorted = Object.values(uniqueMap).sort(
         (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       );
@@ -1335,14 +1335,14 @@ export default function DashboardPage() {
     severity: NotificationItem["severity"]
   ) => {
     if (!currentUser) return;
-    
+
     // Deduplicate: avoid repeating exact active alerts
-    const alreadyExists = notifications.some(n => n.title === title && !n.read);
+    const alreadyExists = (notifications || []).some(n => n.title === title && !n.read);
     if (alreadyExists) return;
 
     const uid = currentUser.uid;
     const newId = "notif_" + Math.random().toString(36).substring(2, 11);
-    
+
     const item: Omit<NotificationItem, "id"> = {
       userId: uid,
       title,
@@ -1371,7 +1371,7 @@ export default function DashboardPage() {
         console.error("Local storage notification write failed:", err);
       }
     }
-    
+
     // Reload state
     loadNotifications(uid);
   };
@@ -1501,7 +1501,7 @@ export default function DashboardPage() {
     // Combine lists, preferring firestore items where IDs match, and avoiding duplicate items
     const combined = [...firestoreList];
     localList.forEach((item: any) => {
-      if (!combined.some(c => c.id === item.id || (c.repoName === item.repoName && c.createdAt === item.createdAt))) {
+      if (!(combined || []).some(c => c.id === item.id || (c.repoName === item.repoName && c.createdAt === item.createdAt))) {
         combined.push(item);
       }
     });
@@ -1522,13 +1522,13 @@ export default function DashboardPage() {
     setIsSavingReportData(true);
     const repoName = scanResult.repoMetadata?.name || "package.json";
     const vulnerabilities = scanResult.vulnerabilities || [];
-    
+
     let severity = "LOW";
-    if (vulnerabilities.some(v => v.severity === "CRITICAL")) {
+    if ((vulnerabilities || []).some(v => v.severity === "CRITICAL")) {
       severity = "CRITICAL";
-    } else if (vulnerabilities.some(v => v.severity === "HIGH")) {
+    } else if ((vulnerabilities || []).some(v => v.severity === "HIGH")) {
       severity = "HIGH";
-    } else if (vulnerabilities.some(v => v.severity === "MODERATE" || v.severity === "MEDIUM")) {
+    } else if ((vulnerabilities || []).some(v => v.severity === "MODERATE" || v.severity === "MEDIUM")) {
       severity = "MEDIUM";
     }
 
@@ -1577,7 +1577,7 @@ export default function DashboardPage() {
         ...firestorePayload,
         createdAt: serverTimestamp() // real server timestamp
       });
-      
+
       // Update local storage ID to match docRef.id
       try {
         const local = localStorage.getItem('cipherkavach_saved_reports');
@@ -1610,7 +1610,7 @@ export default function DashboardPage() {
     } catch (e) {
       console.warn("Firestore save failed or restricted (Missing or insufficient permissions), using sandboxed local storage:", e);
       setFirestoreRestricted(true);
-      
+
       const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       setTelemetry(prev => [...prev, `[${ts}] Intelligence report saved successfully to sandboxed operator storage`]);
 
@@ -1625,7 +1625,7 @@ export default function DashboardPage() {
   const handleDeleteReport = async () => {
     if (!currentUser || !reportToDelete) return;
     setIsDeletingReport(true);
-    
+
     const targetId = reportToDelete.id;
     const targetType = reportToDelete.type;
     const targetName = reportToDelete.repoName;
@@ -1678,10 +1678,10 @@ export default function DashboardPage() {
     } catch (e) {
       console.warn("Firestore delete failed (permissions or offline), local database updated successfully:", e);
       setFirestoreRestricted(true);
-      
+
       const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       setTelemetry(prev => [...prev, `[${ts}] Intelligence report deleted successfully from sandboxed operator storage`]);
-      
+
       setReportToDelete(null);
     } finally {
       setIsDeletingReport(false);
@@ -1697,7 +1697,7 @@ export default function DashboardPage() {
       await setDoc(userRef, { credits: newCredits, role: "enterprise" }, { merge: true });
       setUserCredits(newCredits);
       setIsEnterprise(true);
-      
+
       await addDoc(collection(db, "auditLogs"), {
         action: "ENTERPRISE_UPGRADE",
         target: "+1000 Credits",
@@ -1792,17 +1792,17 @@ export default function DashboardPage() {
 
       const data = await res.json();
       const resultWithTime = { ...data, timestamp: new Date().toISOString() };
-      
+
       // Centralized credit deduction & audit logging
       await consumeCredits("scan");
-      
+
       setScanResult(resultWithTime);
       setTelemetry(prev => [...prev, ...(data.telemetry || [])]);
-      
+
       // Save to History
       const newHistory = [resultWithTime, ...history].slice(0, 10);
       setHistory(newHistory);
-      
+
       const targetName = githubRepoData?.name || targetFile.name || "package.json";
       triggerNotification(
         "Security Scan Completed",
@@ -1858,40 +1858,40 @@ export default function DashboardPage() {
       return;
     }
     const [, owner, repo] = match;
-    
+
     setIsScanning(true);
     setError(null);
     setScanResult(null);
     setTelemetry([`[${new Date().toLocaleTimeString()}] Target acquired: GitHub Repository (${owner}/${repo})`]);
-    
+
     try {
-       setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] Fetching repository metadata...`]);
-       const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
-       if (!repoRes.ok) throw new Error("Repository not found or access denied (public repos only).");
-       const repoData = await repoRes.json();
-       
-       const repoMetadata = {
-          name: repoData.name,
-          owner: repoData.owner.login,
-          stars: repoData.stargazers_count,
-          language: repoData.language,
-          updatedAt: repoData.updated_at
-       };
-  
-       setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] Searching for package.json...`]);
-       const pkgRes = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/${repoData.default_branch}/package.json`);
-       if (!pkgRes.ok) throw new Error("No package.json found in the root of the repository.");
-       
-       const pkgBlob = await pkgRes.blob();
-       const pkgFile = new File([pkgBlob], "package.json", { type: "application/json" });
-       
-       setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] package.json extracted successfully.`]);
-       
-       await executeScan(pkgFile, repoMetadata);
-       
-    } catch(e) {
-       setError(e instanceof Error ? e.message : "GitHub analysis failed.");
-       setIsScanning(false);
+      setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] Fetching repository metadata...`]);
+      const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+      if (!repoRes.ok) throw new Error("Repository not found or access denied (public repos only).");
+      const repoData = await repoRes.json();
+
+      const repoMetadata = {
+        name: repoData.name,
+        owner: repoData.owner.login,
+        stars: repoData.stargazers_count,
+        language: repoData.language,
+        updatedAt: repoData.updated_at
+      };
+
+      setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] Searching for package.json...`]);
+      const pkgRes = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/${repoData.default_branch}/package.json`);
+      if (!pkgRes.ok) throw new Error("No package.json found in the root of the repository.");
+
+      const pkgBlob = await pkgRes.blob();
+      const pkgFile = new File([pkgBlob], "package.json", { type: "application/json" });
+
+      setTelemetry(prev => [...prev, `[${new Date().toLocaleTimeString()}] package.json extracted successfully.`]);
+
+      await executeScan(pkgFile, repoMetadata);
+
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "GitHub analysis failed.");
+      setIsScanning(false);
     }
   };
 
@@ -2031,7 +2031,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
     }
     const inputToUse = typeof eOrOverride === 'string' ? eOrOverride : chatInput;
     if (!inputToUse.trim() || !scanResult) return;
-    
+
     const userMsg = { role: "user", content: inputToUse };
     setChatMessages(prev => [...prev, userMsg]);
     setChatInput("");
@@ -2057,9 +2057,9 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
         // Centralized credit deduction for AI query response
         await consumeCredits("ai_action");
       }
-      
+
       if (data.telemetry && data.telemetry.length > 0) {
-         setTelemetry(prev => [...prev, ...data.telemetry]);
+        setTelemetry(prev => [...prev, ...data.telemetry]);
       }
     } catch (e) {
       console.error(e);
@@ -2094,7 +2094,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
     if (!text) return null;
     return text.split('\n').map((line, i) => {
       if (line.startsWith('```')) return null; // Skip code block markers if any
-      
+
       // Handle bullets
       if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
         return (
@@ -2106,7 +2106,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
           </div>
         );
       }
-      
+
       // Empty lines
       if (!line.trim()) return <div key={i} className="h-2"></div>;
 
@@ -2123,7 +2123,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
   const stats = useMemo(() => {
     if (!scanResult) return null;
     const vulns = scanResult.vulnerabilities;
-    
+
     let critical = 0;
     let high = 0;
     let medium = 0;
@@ -2145,7 +2145,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
     const totalScore = (critical * 4) + (high * 3) + (medium * 2) + (low * 1);
     let riskLevel = "SECURE";
     let riskColor = "text-green-400 bg-green-500/20 border-green-500/30";
-    
+
     if (totalScore >= 10 || critical > 0) {
       riskLevel = "CRITICAL RISK";
       riskColor = "text-red-400 bg-red-500/20 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.3)]";
@@ -2170,7 +2170,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
   return (
     <div className="relative min-h-screen bg-[#030712] text-white selection:bg-blue-500/30 overflow-x-hidden" suppressHydrationWarning>
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-600/10 rounded-full blur-[150px] pointer-events-none opacity-60 mix-blend-screen" />
-      
+
       <nav className="relative z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
         <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
@@ -2219,7 +2219,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     <>
                       {/* Click-out backdrop */}
                       <div className="fixed inset-0 z-40" onClick={() => setShowNotificationsPanel(false)} />
-                      
+
                       <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -2227,7 +2227,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                         className="absolute right-0 mt-3 w-80 sm:w-96 max-h-[480px] bg-[#0c101b]/95 border border-white/10 rounded-2xl shadow-[0_10px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl z-50 overflow-hidden flex flex-col"
                       >
                         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500" />
-                        
+
                         {/* Header */}
                         <div className="p-4 border-b border-white/5 flex items-center justify-between shrink-0">
                           <div className="flex items-center gap-2">
@@ -2263,9 +2263,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                               return (
                                 <div
                                   key={n.id}
-                                  className={`p-4 transition-colors relative flex items-start gap-3 hover:bg-white/[0.02] ${
-                                    !n.read ? "bg-white/[0.01]" : "opacity-60"
-                                  }`}
+                                  className={`p-4 transition-colors relative flex items-start gap-3 hover:bg-white/[0.02] ${!n.read ? "bg-white/[0.01]" : "opacity-60"
+                                    }`}
                                 >
                                   {/* Unread indicator line */}
                                   {!n.read && (
@@ -2347,7 +2346,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             <div className="h-6 w-px bg-white/10 mx-1"></div>
 
             {isAuthLoading || isProfileLoading ? (
-               <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse"></div>
+              <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse"></div>
             ) : currentUser ? (
               <button onClick={() => setShowControlCenter(true)} className="flex items-center gap-2 bg-white/5 border border-white/10 p-1 pr-3 rounded-full hover:bg-white/10 transition-colors">
                 <img src={computedAvatarUrl} alt="Avatar" className="w-7 h-7 rounded-full object-cover" />
@@ -2385,7 +2384,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     Continue with Google
                   </button>
                   <button onClick={() => { setIsSigningIn(true); signInWithPopup(auth, githubProvider).then(() => setShowAuthModal(false)).finally(() => setIsSigningIn(false)); }} disabled={isSigningIn} className="w-full py-2.5 px-4 bg-[#24292e] text-white font-semibold rounded-xl flex items-center justify-center gap-3 hover:bg-[#2c3238] transition-colors border border-white/5 text-sm disabled:opacity-60">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
                     Continue with GitHub
                   </button>
                 </div>                {/* Divider */}
@@ -2400,22 +2399,20 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                   <button
                     type="button"
                     onClick={() => { setAuthMode("login"); setAuthError(""); }}
-                    className={`flex-1 py-1.5 rounded-lg font-bold uppercase transition-all ${
-                      authMode === "login"
-                        ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                        : "text-gray-500 hover:text-gray-300"
-                    }`}
+                    className={`flex-1 py-1.5 rounded-lg font-bold uppercase transition-all ${authMode === "login"
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      : "text-gray-500 hover:text-gray-300"
+                      }`}
                   >
                     Sign In
                   </button>
                   <button
                     type="button"
                     onClick={() => { setAuthMode("signup"); setAuthError(""); }}
-                    className={`flex-1 py-1.5 rounded-lg font-bold uppercase transition-all ${
-                      authMode === "signup"
-                        ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                        : "text-gray-500 hover:text-gray-300"
-                    }`}
+                    className={`flex-1 py-1.5 rounded-lg font-bold uppercase transition-all ${authMode === "signup"
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      : "text-gray-500 hover:text-gray-300"
+                      }`}
                   >
                     Register
                   </button>
@@ -2626,10 +2623,10 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-[#0f1219] border border-white/10 p-6 rounded-2xl max-w-md w-full shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
               <button onClick={() => setShowExportModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="w-5 h-5" /></button>
-              
+
               <h3 className="text-xl font-bold mb-2">Export Intelligence Report</h3>
               <p className="text-gray-400 text-sm mb-6">Select your preferred export format.</p>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <button onClick={downloadText} disabled={isExporting} className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50">
                   {isExporting ? <Loader2 className="w-8 h-8 text-red-400 animate-spin" /> : <FileText className="w-8 h-8 text-red-400" />}
@@ -2661,21 +2658,19 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             <div className="flex gap-2 p-1 bg-black/40 border border-white/5 rounded-xl mb-6 shrink-0 font-mono">
               <button
                 onClick={() => setSidebarTab("history")}
-                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
-                  sidebarTab === "history"
-                    ? "bg-blue-600/20 border border-blue-500/30 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.1)]"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
+                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${sidebarTab === "history"
+                  ? "bg-blue-600/20 border border-blue-500/30 text-blue-300 shadow-[0_0_10px_rgba(59,130,246,0.1)]"
+                  : "text-gray-400 hover:text-gray-200"
+                  }`}
               >
                 History ({history.length})
               </button>
               <button
                 onClick={() => setSidebarTab("saved")}
-                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
-                  sidebarTab === "saved"
-                    ? "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 shadow-[0_0_10px_rgba(234,179,8,0.1)]"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
+                className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${sidebarTab === "saved"
+                  ? "bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 shadow-[0_0_10px_rgba(234,179,8,0.1)]"
+                  : "text-gray-400 hover:text-gray-200"
+                  }`}
               >
                 Saved ({savedReports.length})
               </button>
@@ -2729,12 +2724,11 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                       onClick={() => loadSavedReportResult(report)}
                       className="glass-card p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all hover:scale-[1.02] relative group overflow-hidden"
                     >
-                      <div className={`absolute top-0 left-0 w-[3px] h-full ${
-                        report.severity === "CRITICAL" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" :
+                      <div className={`absolute top-0 left-0 w-[3px] h-full ${report.severity === "CRITICAL" ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]" :
                         report.severity === "HIGH" ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" :
-                        report.severity === "MEDIUM" ? "bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]" :
-                        "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"
-                      }`} />
+                          report.severity === "MEDIUM" ? "bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]" :
+                            "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"
+                        }`} />
 
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-gray-400 font-mono">
@@ -2744,15 +2738,14 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           })()}
                         </span>
                         <div className="flex items-center gap-1.5">
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase tracking-wide ${
-                            report.severity === "CRITICAL" ? "bg-red-500/20 text-red-400 border-red-500/30" :
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase tracking-wide ${report.severity === "CRITICAL" ? "bg-red-500/20 text-red-400 border-red-500/30" :
                             report.severity === "HIGH" ? "bg-orange-500/20 text-orange-400 border-orange-500/30" :
-                            report.severity === "MEDIUM" ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
-                            "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                          }`}>
+                              report.severity === "MEDIUM" ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
+                                "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                            }`}>
                             {report.severity}
                           </span>
-                          
+
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -2941,18 +2934,18 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     </div>
                     {/* Upgrade card — hidden when already enterprise */}
                     {!isEnterprise && (
-                    <div className="rounded-2xl p-4 border border-purple-500/20 bg-purple-500/5 relative opacity-70 hover:opacity-100 transition-opacity">
-                      <div className="absolute -top-3 left-4 text-[10px] font-black bg-purple-600 text-white px-2.5 py-0.5 rounded-full tracking-wider">UPGRADE</div>
-                      <p className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-3">Enterprise</p>
-                      <ul className="space-y-2">
-                        {["Unlimited Orchestration", "Multi-Model Consensus", "Continuous Monitoring", "Compliance Reports"].map(f => (
-                          <li key={f} className="flex items-center gap-1.5 text-xs text-purple-300">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />{f}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-[10px] text-purple-500 font-mono mt-2">Redeem an access code to unlock</p>
-                    </div>
+                      <div className="rounded-2xl p-4 border border-purple-500/20 bg-purple-500/5 relative opacity-70 hover:opacity-100 transition-opacity">
+                        <div className="absolute -top-3 left-4 text-[10px] font-black bg-purple-600 text-white px-2.5 py-0.5 rounded-full tracking-wider">UPGRADE</div>
+                        <p className="text-sm font-bold text-purple-300 uppercase tracking-wider mb-3">Enterprise</p>
+                        <ul className="space-y-2">
+                          {["Unlimited Orchestration", "Multi-Model Consensus", "Continuous Monitoring", "Compliance Reports"].map(f => (
+                            <li key={f} className="flex items-center gap-1.5 text-xs text-purple-300">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />{f}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-[10px] text-purple-500 font-mono mt-2">Redeem an access code to unlock</p>
+                      </div>
                     )}
                   </div>
 
@@ -3088,7 +3081,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           <label className="text-xs text-gray-300 uppercase font-bold tracking-widest mb-1.5 block">Credits to Grant</label>
                           <div className="flex gap-2 flex-wrap">
                             {[50, 100, 150, 200, 500].map(c => (
-                              <button key={c} onClick={() => setAdminCredits(c)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${ adminCredits === c ? "bg-yellow-500 text-black" : "bg-white/5 text-gray-400 hover:bg-white/10" }`}>{c}</button>
+                              <button key={c} onClick={() => setAdminCredits(c)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${adminCredits === c ? "bg-yellow-500 text-black" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}>{c}</button>
                             ))}
                             <input type="number" value={adminCredits} onChange={e => setAdminCredits(Number(e.target.value))} className="w-16 px-2 py-1.5 bg-black/40 border border-white/10 rounded-lg text-xs font-mono text-white outline-none focus:border-yellow-500/50 transition-all" />
                           </div>
@@ -3099,13 +3092,13 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                         <div>
                           <label className="text-xs text-gray-300 uppercase font-bold tracking-widest mb-1.5 block">Permissions</label>
                           <div className="space-y-2">
-                            <button onClick={() => setAdminEnterprise(p => !p)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-medium transition-all ${ adminEnterprise ? "bg-purple-500/20 border-purple-500/40 text-purple-300" : "border-white/5 text-gray-500 hover:text-gray-300" }`}>
+                            <button onClick={() => setAdminEnterprise(p => !p)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-medium transition-all ${adminEnterprise ? "bg-purple-500/20 border-purple-500/40 text-purple-300" : "border-white/5 text-gray-500 hover:text-gray-300"}`}>
                               <span>Enterprise Unlock</span>
-                              <span className={`w-2 h-2 rounded-full ${ adminEnterprise ? "bg-purple-400" : "bg-gray-600" }`} />
+                              <span className={`w-2 h-2 rounded-full ${adminEnterprise ? "bg-purple-400" : "bg-gray-600"}`} />
                             </button>
-                            <button onClick={() => setAdminReplay(p => !p)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-medium transition-all ${ adminReplay ? "bg-orange-500/20 border-orange-500/40 text-orange-300" : "border-white/5 text-gray-500 hover:text-gray-300" }`}>
+                            <button onClick={() => setAdminReplay(p => !p)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-medium transition-all ${adminReplay ? "bg-orange-500/20 border-orange-500/40 text-orange-300" : "border-white/5 text-gray-500 hover:text-gray-300"}`}>
                               <span>Replay Access</span>
-                              <span className={`w-2 h-2 rounded-full ${ adminReplay ? "bg-orange-400" : "bg-gray-600" }`} />
+                              <span className={`w-2 h-2 rounded-full ${adminReplay ? "bg-orange-400" : "bg-gray-600"}`} />
                             </button>
                           </div>
                         </div>
@@ -3142,7 +3135,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                 </div>
               )}
 
-                {/* Sign Out */}
+              {/* Sign Out */}
               <div className="flex items-center justify-between pb-6">
                 {isAdmin && (
                   <Link
@@ -3226,9 +3219,9 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 pb-2">Security Intelligence</h1>
             <p className="text-gray-400 mt-2 max-w-xl text-lg">Upload your dependency file to generate a runtime-tracked AI security briefing.</p>
           </div>
-          
+
           <div className="flex flex-col gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 w-full md:w-auto backdrop-blur-sm shadow-xl">
-             <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               <label className="relative cursor-pointer flex-1 flex items-center justify-center gap-3 px-5 py-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors border border-white/5">
                 <Upload className="w-5 h-5 text-blue-400 shrink-0" />
                 <span className="text-sm font-medium truncate max-w-[150px]">{file ? file.name : "Upload package.json"}</span>
@@ -3236,20 +3229,20 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
               </label>
               <div className="flex items-center justify-center text-[10px] text-gray-500 uppercase font-bold tracking-widest px-2">OR</div>
               <div className="flex-1 flex items-center bg-black/40 rounded-xl border border-white/10 overflow-hidden px-4 py-3 group focus-within:border-blue-500/50 transition-colors">
-                 <GitBranch className="w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors mr-3 shrink-0" />
-                 <input 
-                   type="text" 
-                   suppressHydrationWarning
-                   placeholder="Paste GitHub Repository URL" 
-                   className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-gray-600 min-w-[250px]"
-                   value={githubUrl}
-                   onChange={e => setGithubUrl(e.target.value)}
-                   onKeyDown={e => e.key === 'Enter' && handleScan()}
-                   disabled={isScanning}
-                 />
+                <GitBranch className="w-5 h-5 text-gray-400 group-focus-within:text-blue-400 transition-colors mr-3 shrink-0" />
+                <input
+                  type="text"
+                  suppressHydrationWarning
+                  placeholder="Paste GitHub Repository URL"
+                  className="bg-transparent border-none outline-none text-sm text-white w-full placeholder:text-gray-600 min-w-[250px]"
+                  value={githubUrl}
+                  onChange={e => setGithubUrl(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleScan()}
+                  disabled={isScanning}
+                />
               </div>
-             </div>
-             
+            </div>
+
             <button
               onClick={handleScan}
               suppressHydrationWarning
@@ -3289,7 +3282,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             {/* LOCKED CORE DASHBOARD SECTION — DO NOT MODIFY */}
             {currentUser && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* User Profile Panel (Feature 1) */}
                 <div className="glass-card p-6 rounded-2xl border border-white/5 relative overflow-hidden group flex flex-col justify-between h-full">
                   <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors pointer-events-none" />
@@ -3373,9 +3366,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     <ul className="space-y-2">
                       {aiRecommendations.map((rec, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-gray-300">
-                          <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                            rec.type === "critical" ? "bg-red-400" : rec.type === "warning" ? "bg-yellow-400" : "bg-blue-400"
-                          }`} />
+                          <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${rec.type === "critical" ? "bg-red-400" : rec.type === "warning" ? "bg-yellow-400" : "bg-blue-400"
+                            }`} />
                           <span className="leading-tight">{rec.msg}</span>
                         </li>
                       ))}
@@ -3414,8 +3406,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                             <p className="text-[10px] text-gray-500 font-mono mt-0.5">{new Date(scan.timestamp || Date.now()).toLocaleDateString()}</p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold px-2 py-1 rounded border ${scan.vulnerabilities.some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : scan.vulnerabilities.some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
-                              {scan.vulnerabilities.length} CVEs
+                            <span className={`text-xs font-bold px-2 py-1 rounded border ${(scan.vulnerabilities || []).some(v => v.severity === 'CRITICAL') ? 'text-red-400 border-red-500/30 bg-red-500/10' : scan.vulnerabilities.some(v => v.severity === 'HIGH') ? 'text-orange-400 border-orange-500/30 bg-orange-500/10' : 'text-green-400 border-green-500/30 bg-green-500/10'}`}>
+                              {(scan.vulnerabilities || []).length} CVEs
                             </span>
                             <button
                               onClick={(e) => {
@@ -3730,9 +3722,9 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="min-h-[420px] flex flex-col items-center justify-center p-8 glass-card rounded-[2rem] border border-blue-500/30 relative overflow-hidden shadow-[0_0_50px_rgba(59,130,246,0.1)]">
             <div className="absolute inset-0 bg-blue-500/5 animate-pulse" />
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-[shimmer_2s_infinite]"></div>
-            
+
             <div className="relative z-10 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              
+
               {/* Left Side: Pipeline Animation */}
               <div className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 relative mb-6">
@@ -3741,10 +3733,10 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                   <div className="absolute inset-2 border-4 border-purple-500/30 border-b-transparent border-r-transparent rounded-full animate-[spin_2s_linear_infinite_reverse]"></div>
                   <BrainCircuit className="w-10 h-10 text-blue-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                 </div>
-                
+
                 <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">CascadeFlow Orchestration</h3>
                 <p className="text-blue-400 font-mono text-sm mb-6 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Security Analysis Progress — {Math.min(100, Math.round(((scanStepIndex + 1) / SCAN_STEPS.length) * 100))}%</p>
-                
+
                 <div className="w-full max-w-xs text-left space-y-3 relative before:absolute before:inset-y-0 before:left-[11px] before:w-[2px] before:bg-blue-900/30">
                   {SCAN_STEPS.map((step, idx) => (
                     <div key={idx} className={`relative pl-8 transition-all duration-700 ${idx === scanStepIndex ? "text-blue-400 scale-105 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : idx < scanStepIndex ? "text-gray-500" : "text-gray-700 opacity-50"}`}>
@@ -3783,14 +3775,14 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                   </div>
                 </div>
               </div>
-              
+
             </div>
           </motion.div>
         )}
 
         {scanResult && stats && !isScanning && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-4 mb-2 gap-4">
               <h2 className="text-2xl font-bold tracking-tight">Intelligence Dashboard</h2>
               <div className="flex items-center gap-3">
@@ -3810,7 +3802,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             </div>
 
             <div id="pdf-content-wrapper" className="space-y-8">
-              
+
               {/* LOCKED CORE DASHBOARD SECTION — DO NOT MODIFY */}
               {scanResult.repoMetadata && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -3853,7 +3845,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     </span>
                   </div>
                 </div>
-                
+
                 <StatCard label="Total Risks" value={stats.total} color="text-white" />
                 <StatCard label="Critical" value={stats.critical} color="text-red-400" />
                 <StatCard label="High" value={stats.high} color="text-orange-400" />
@@ -3862,13 +3854,13 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
               {/* Main Enterprise Grid Structure */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
+
                 {/* LEFT COLUMN (Intelligence & Telemetry) */}
                 <div className="lg:col-span-8 space-y-8">
-                  
+
                   {/* Row 1: Telemetry (65%) + Chart (35%) */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:h-[280px]">
-                    
+
                     {/* Compact Runtime Telemetry Log */}
                     <div className="md:col-span-2 glass-card rounded-2xl border border-gray-700 overflow-hidden relative shadow-[0_0_30px_rgba(0,0,0,0.5)] flex flex-col h-[280px] md:h-full">
                       <div className="bg-black/60 px-4 py-3 border-b border-gray-800 flex items-center justify-between shrink-0">
@@ -3886,7 +3878,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                         {telemetry.map((log, i) => (
                           <div key={i} className="flex gap-3 hover:bg-white/5 px-2 py-1 rounded transition-colors">
                             <span className="text-gray-500 shrink-0 opacity-50">{`>`}</span>
-                            <span className="break-words" dangerouslySetInnerHTML={{__html: log.replace(/(\[.*?\])/, '<span class="text-blue-400/80">$1</span>').replace(/(gpt-4o-mini|gpt-4o|CascadeFlow)/g, '<span class="text-purple-400 font-bold">$1</span>')}} />
+                            <span className="break-words" dangerouslySetInnerHTML={{ __html: log.replace(/(\[.*?\])/, '<span class="text-blue-400/80">$1</span>').replace(/(gpt-4o-mini|gpt-4o|CascadeFlow)/g, '<span class="text-purple-400 font-bold">$1</span>') }} />
                           </div>
                         ))}
                         <div ref={telemetryEndRef} />
@@ -3908,7 +3900,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                 <span className="text-gray-400">{data.count} <span className="text-gray-600">({Math.round((data.count / stats.total) * 100)}%)</span></span>
                               </div>
                               <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
-                                <motion.div 
+                                <motion.div
                                   initial={{ width: 0 }}
                                   animate={{ width: `${(data.count / stats.total) * 100}%` }}
                                   transition={{ duration: 1, ease: "easeOut", delay: idx * 0.1 }}
@@ -4030,14 +4022,14 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           const highCount = vulns.filter(v => v.severity.toUpperCase() === 'HIGH').length;
 
                           return (
-                            <motion.div 
+                            <motion.div
                               key={pkgName}
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.1 + (idx * 0.05) }}
                               className="glass-card rounded-2xl border border-white/5 overflow-hidden shadow-lg hover:border-white/10 transition-colors"
                             >
-                              <div 
+                              <div
                                 onClick={() => togglePackage(pkgName)}
                                 className="p-5 md:p-6 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors select-none"
                               >
@@ -4072,18 +4064,17 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                       {vulns.map((vuln, vIdx) => (
                                         <div key={vIdx} className="bg-white/5 rounded-xl p-5 border border-white/5 hover:bg-white/[0.07] transition-colors">
                                           <div className="flex flex-wrap items-center gap-3 mb-4">
-                                            <span 
+                                            <span
                                               onClick={() => handleOpenExplainModal({ id: vuln.id, packageName: pkgName, severity: vuln.severity, description: vuln.description, aliases: vuln.aliases })}
-                                              className={`px-2.5 py-1 text-xs font-bold text-white rounded-md bg-gray-700 shadow-sm cursor-pointer hover:opacity-80 transition-opacity ${
-                                                vuln.severity.toUpperCase() === 'CRITICAL' ? '!bg-red-600' : 
-                                                vuln.severity.toUpperCase() === 'HIGH' ? '!bg-orange-600' : 
-                                                (vuln.severity.toUpperCase() === 'MODERATE' || vuln.severity.toUpperCase() === 'MEDIUM') ? '!bg-yellow-600' : '!bg-blue-600'
-                                              }`}
+                                              className={`px-2.5 py-1 text-xs font-bold text-white rounded-md bg-gray-700 shadow-sm cursor-pointer hover:opacity-80 transition-opacity ${vuln.severity.toUpperCase() === 'CRITICAL' ? '!bg-red-600' :
+                                                vuln.severity.toUpperCase() === 'HIGH' ? '!bg-orange-600' :
+                                                  (vuln.severity.toUpperCase() === 'MODERATE' || vuln.severity.toUpperCase() === 'MEDIUM') ? '!bg-yellow-600' : '!bg-blue-600'
+                                                }`}
                                               title="Click to view AI Security Intelligence"
                                             >
                                               {vuln.severity}
                                             </span>
-                                            <span 
+                                            <span
                                               onClick={() => handleOpenExplainModal({ id: vuln.id, packageName: pkgName, severity: vuln.severity, description: vuln.description, aliases: vuln.aliases })}
                                               className="font-mono text-sm font-semibold text-gray-200 hover:text-cyan-400 hover:underline cursor-pointer transition-colors"
                                               title="Click to view AI Security Intelligence"
@@ -4091,7 +4082,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                               {vuln.id}
                                             </span>
                                             {vuln.aliases && vuln.aliases !== "No CVE ID" && (
-                                              <span 
+                                              <span
                                                 onClick={() => handleOpenExplainModal({ id: vuln.id, packageName: pkgName, severity: vuln.severity, description: vuln.description, aliases: vuln.aliases })}
                                                 className="font-mono text-xs text-gray-400 bg-black/50 border border-white/10 px-2 py-1 rounded-md hover:text-cyan-400 hover:border-cyan-500/30 cursor-pointer transition-colors"
                                                 title="Click to view AI Security Intelligence"
@@ -4099,9 +4090,9 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                                 {vuln.aliases}
                                               </span>
                                             )}
-                                            
+
                                             <div className="ml-auto flex gap-2">
-                                              <button 
+                                              <button
                                                 onClick={(e) => {
                                                   e.stopPropagation();
                                                   handleOpenExplainModal({ id: vuln.id, packageName: pkgName, severity: vuln.severity, description: vuln.description, aliases: vuln.aliases });
@@ -4111,7 +4102,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                                 <Bot className="w-3.5 h-3.5" />
                                                 AI Intelligence
                                               </button>
-                                              <button 
+                                              <button
                                                 onClick={(e) => {
                                                   e.stopPropagation();
                                                   setChatInput(`Explain this vulnerability simply: ${vuln.id} in ${pkgName}`);
@@ -4145,7 +4136,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
                     {/* Extended Row 1: Security Confidence & Patch Priority */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
+
                       {/* Security Confidence Gauge */}
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl border border-cyan-500/30 p-6 bg-gradient-to-br from-cyan-500/5 to-transparent relative overflow-hidden flex flex-col justify-center items-center group">
                         <div className="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
@@ -4153,27 +4144,27 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           <Activity className="w-5 h-5 text-cyan-400" />
                           <h3 className="text-lg font-bold text-white">Security Confidence</h3>
                         </div>
-                        
+
                         <div className="relative w-32 h-32 flex items-center justify-center">
                           {/* Outer glow rings */}
                           <div className={`absolute inset-0 rounded-full border-4 border-dashed border-cyan-500/20 animate-[spin_20s_linear_infinite]`}></div>
                           <div className={`absolute inset-2 rounded-full border border-cyan-500/40 animate-[spin_10s_linear_infinite_reverse]`}></div>
-                          
+
                           {/* Radial indicator */}
                           <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="6" 
-                                    strokeDasharray="283" strokeDashoffset={283 - (283 * (stats.total === 0 ? 100 : Math.max(10, 100 - (stats.total * 5)))) / 100} 
-                                    className={`transition-all duration-1000 ease-out ${stats.total === 0 ? 'text-green-500' : stats.total > 10 ? 'text-red-500' : 'text-yellow-500'}`} />
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="6"
+                              strokeDasharray="283" strokeDashoffset={283 - (283 * (stats.total === 0 ? 100 : Math.max(10, 100 - (stats.total * 5)))) / 100}
+                              className={`transition-all duration-1000 ease-out ${stats.total === 0 ? 'text-green-500' : stats.total > 10 ? 'text-red-500' : 'text-yellow-500'}`} />
                           </svg>
-                          
+
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
                             <span className="text-3xl font-bold font-mono text-white tracking-tighter">
                               {stats.total === 0 ? 100 : Math.max(10, 100 - (stats.total * 5))}%
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className={`mt-6 px-4 py-1.5 rounded-full border backdrop-blur-md text-sm font-bold tracking-widest uppercase ${stats.total === 0 ? 'bg-green-500/10 border-green-500/30 text-green-400' : stats.total > 10 ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'}`}>
                           {stats.total === 0 ? 'Secure' : stats.total > 10 ? 'Critical Exposure' : 'Moderate Risk'}
                         </div>
@@ -4213,7 +4204,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     {scanResult.progression_timeline && (
                       <div className="glass-card rounded-2xl border border-white/5 p-6 md:p-8 relative overflow-hidden shadow-2xl group hover:border-white/10 transition-colors">
                         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.03]" style={{ backgroundSize: '30px 30px' }} />
-                        
+
                         <div className="flex items-center justify-between mb-8 relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
@@ -4242,7 +4233,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           {/* Right: SVG Graph Visualization */}
                           <div className="bg-black/40 rounded-xl border border-white/5 p-6 flex items-center justify-center relative overflow-hidden min-h-[200px] shadow-inner">
                             <div className="absolute inset-0 bg-indigo-500/5 animate-pulse" />
-                            
+
                             {/* Lightweight SVG Cyberpunk Graph */}
                             <svg className="w-full h-full max-h-[250px] overflow-visible" viewBox="0 0 300 150">
                               <defs>
@@ -4252,10 +4243,10 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                                   <stop offset="100%" stopColor="#ef4444" stopOpacity="0.8" />
                                 </linearGradient>
                                 <filter id="glow">
-                                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                  <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                                   <feMerge>
-                                    <feMergeNode in="coloredBlur"/>
-                                    <feMergeNode in="SourceGraphic"/>
+                                    <feMergeNode in="coloredBlur" />
+                                    <feMergeNode in="SourceGraphic" />
                                   </feMerge>
                                 </filter>
                               </defs>
@@ -4263,7 +4254,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                               {/* Lines */}
                               <path d="M 50 75 L 150 40 L 250 75" fill="none" stroke="url(#lineGrad)" strokeWidth="2" strokeDasharray="4 4" className="animate-[dash_20s_linear_infinite]" />
                               <path d="M 50 75 L 150 110 L 250 75" fill="none" stroke="url(#lineGrad)" strokeWidth="2" strokeDasharray="4 4" className="animate-[dash_20s_linear_infinite]" />
-                              
+
                               {/* Animated Particles along paths */}
                               <circle r="3" fill="#60a5fa" filter="url(#glow)">
                                 <animateMotion dur="3s" repeatCount="indefinite" path="M 50 75 L 150 40 L 250 75" />
@@ -4296,7 +4287,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                               </g>
                             </svg>
 
-                            <style dangerouslySetInnerHTML={{__html: `
+                            <style dangerouslySetInnerHTML={{
+                              __html: `
                               @keyframes dash {
                                 to { stroke-dashoffset: -100; }
                               }
@@ -4312,7 +4304,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                 <div className="lg:col-span-4 sticky top-[104px] h-[calc(100vh-140px)] w-full">
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-2xl border border-purple-500/30 flex flex-col bg-[#050505] shadow-[0_0_40px_rgba(168,85,247,0.1)] relative overflow-hidden h-full">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-                    
+
                     <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
                       <div className="flex items-center gap-2">
                         <Bot className="w-5 h-5 text-purple-400" />
@@ -4321,7 +4313,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                       <span className="text-[10px] uppercase font-bold tracking-widest text-purple-400/50 px-2 py-1 bg-purple-500/10 rounded-md border border-purple-500/20">Active</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[url('/grid.svg')] bg-center" style={{backgroundSize: '20px 20px'}}>
+                    <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[url('/grid.svg')] bg-center" style={{ backgroundSize: '20px 20px' }}>
                       <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tl-sm p-4 w-fit max-w-[90%] backdrop-blur-sm shadow-md">
                         <p className="text-sm text-purple-100 font-light leading-relaxed">
                           I am CipherKavach, orchestrated by CascadeFlow. I've analyzed your dependencies and found {stats.total} vulnerabilities. How can I assist you with remediation today?
@@ -4330,11 +4322,10 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
                       {chatMessages.map((msg, i) => (
                         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`rounded-xl p-4 w-fit max-w-[90%] text-sm font-light leading-relaxed backdrop-blur-sm shadow-md ${
-                            msg.role === 'user' 
-                              ? 'bg-blue-600/20 border border-blue-500/30 rounded-tr-sm text-blue-50' 
-                              : 'bg-purple-500/10 border border-purple-500/20 rounded-tl-sm text-purple-50'
-                          }`}>
+                          <div className={`rounded-xl p-4 w-fit max-w-[90%] text-sm font-light leading-relaxed backdrop-blur-sm shadow-md ${msg.role === 'user'
+                            ? 'bg-blue-600/20 border border-blue-500/30 rounded-tr-sm text-blue-50'
+                            : 'bg-purple-500/10 border border-purple-500/20 rounded-tl-sm text-purple-50'
+                            }`}>
                             <div className="flex items-center gap-2 mb-2 opacity-50 text-xs font-bold uppercase tracking-widest">
                               {msg.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
                               {msg.role}
@@ -4343,14 +4334,14 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           </div>
                         </div>
                       ))}
-                      
+
                       {isChatting && (
                         <div className="flex justify-start">
                           <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tl-sm p-4 flex items-center gap-3 w-fit">
                             <div className="flex gap-1">
-                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                             </div>
                             <span className="text-xs font-mono text-purple-400/70">CipherKavach is analyzing...</span>
                           </div>
@@ -4371,16 +4362,16 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
                     <div className="p-4 border-t border-white/5 bg-black/40 shrink-0">
                       <form onSubmit={handleChatSubmit} className="relative">
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
                           placeholder="Ask about these vulnerabilities..."
                           className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-gray-600"
                           disabled={isChatting}
                         />
-                        <button 
-                          type="submit" 
+                        <button
+                          type="submit"
                           disabled={!chatInput.trim() || isChatting}
                           className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-purple-600 hover:bg-purple-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg transition-colors shadow-md"
                         >
@@ -4390,7 +4381,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     </div>
                   </motion.div>
                 </div>
-                
+
               </div>
             </div>
           </motion.div>
@@ -4445,9 +4436,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                   <div className="glass-card p-4 rounded-2xl border border-white/5 space-y-3 bg-white/[0.01]">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-300 uppercase tracking-wider font-bold">COMPROMISE STAGE METER</span>
-                      <span className={`font-bold ${
-                        replayCurrentStage === 5 ? "text-green-400" : replayCurrentStage >= 3 ? "text-red-400" : "text-yellow-400"
-                      }`}>
+                      <span className={`font-bold ${replayCurrentStage === 5 ? "text-green-400" : replayCurrentStage >= 3 ? "text-red-400" : "text-yellow-400"
+                        }`}>
                         {replayCurrentStage === 5 ? "0% (SECURED)" : `${[5, 20, 55, 80, 95][replayCurrentStage]}% EXPOSED`}
                       </span>
                     </div>
@@ -4457,7 +4447,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                       {Array.from({ length: 6 }).map((_, i) => {
                         const isFilled = i <= replayCurrentStage;
                         const isFinalSecure = replayCurrentStage === 5;
-                        
+
                         let segmentColor = "bg-white/5";
                         let segmentGlow = "";
 
@@ -4488,12 +4478,12 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                         replayCurrentStage === 5
                           ? "✓ All attack paths neutralized. CascadeFlow isolation sandbox fully verified."
                           : `⚠ Level ${replayCurrentStage + 1} elevation: ${[
-                              "Initial exploit vectors detected in dependency tree.",
-                              "Post-exploit payload string pushed to sandboxed target environment.",
-                              "Local system permission boundary escalation in progress.",
-                              "Reading transient runtime credentials maps from isolated context.",
-                              "Warning: Egress exfiltration socket handshake established.",
-                            ][replayCurrentStage]}`
+                            "Initial exploit vectors detected in dependency tree.",
+                            "Post-exploit payload string pushed to sandboxed target environment.",
+                            "Local system permission boundary escalation in progress.",
+                            "Reading transient runtime credentials maps from isolated context.",
+                            "Warning: Egress exfiltration socket handshake established.",
+                          ][replayCurrentStage]}`
                       }
                     </p>
                   </div>
@@ -4521,13 +4511,13 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                   <div className="relative pl-6 space-y-4">
                     {/* Vertical Timeline line background */}
                     <div className="absolute left-2 top-2 bottom-2 w-0.5 bg-white/5 z-0" />
-                    
+
                     {/* Glowing active path overlay */}
                     <div
                       className="absolute left-2 top-2 w-0.5 bg-gradient-to-b from-yellow-500 via-red-500 to-green-500 transition-all duration-500 z-0 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
                       style={{ height: `${(replayCurrentStage / 5) * 92}%` }}
                     />
-                    
+
                     {REPLAY_STAGES.map((stage, idx) => {
                       const isActive = idx === replayCurrentStage;
                       const isCompleted = idx < replayCurrentStage;
@@ -4542,7 +4532,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                       const timestamps = ["+0.00s", "+1.24s", "+2.50s", "+3.90s", "+5.15s", "+6.40s"];
 
                       if (isActive) {
-                        nodeColor = stage.severity === "SECURED" 
+                        nodeColor = stage.severity === "SECURED"
                           ? "border-green-500 bg-green-950 text-green-400 ring-4 ring-green-500/10 shadow-[0_0_12px_rgba(74,222,128,0.6)]"
                           : "border-red-500 bg-red-950 text-red-400 ring-4 ring-red-500/10 shadow-[0_0_12px_rgba(239,68,68,0.6)] animate-pulse";
                         textColor = "text-white";
@@ -4564,7 +4554,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           <div className={`absolute -left-[23px] top-1.5 w-4 h-4 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-all duration-300 ${nodeColor}`}>
                             {isCompleted ? "✓" : idx + 1}
                           </div>
-                          
+
                           {/* Card */}
                           <div className={`p-4 rounded-2xl border transition-all duration-300 ${cardBorder} ${glowBorder} space-y-2`}>
                             <div className="flex items-center justify-between gap-2">
@@ -4718,7 +4708,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                         <CheckCircle2 className="w-8 h-8 text-green-400 animate-pulse" />
                         <span className="absolute inset-0 border border-green-400 rounded-2xl animate-ping opacity-25" />
                       </div>
-                      
+
                       <div className="space-y-1">
                         <h4 className="text-sm font-black uppercase text-green-400 tracking-widest animate-pulse font-mono">
                           Threat Chain Successfully Neutralized
@@ -4855,7 +4845,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
               className="w-full max-w-md bg-[#090d16] border border-red-500/30 rounded-2xl p-6 relative overflow-hidden shadow-[0_0_50px_rgba(239,68,68,0.15)]"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500" />
-              
+
               <div className="flex items-center gap-3 text-red-400 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
@@ -4969,7 +4959,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             </motion.div>
           </motion.div>
         )}
-       </AnimatePresence>
+      </AnimatePresence>
 
       {/* Premium Runtime Governance Modal */}
       <AnimatePresence>
@@ -5066,7 +5056,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
           >
             {/* Click-out backdrop */}
             <div className="absolute inset-0" onClick={() => setExplainVuln(null)} />
-            
+
             <motion.div
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
@@ -5075,7 +5065,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
             >
               {/* Top premium border glow */}
               <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600" />
-              
+
               {/* Header */}
               <div className="flex items-start justify-between border-b border-white/5 pb-4 mb-4 shrink-0">
                 <div className="space-y-1">
@@ -5087,8 +5077,8 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     {explainVuln.id} <span className="text-xs text-gray-500 font-sans font-normal">in {explainVuln.packageName}</span>
                   </h3>
                 </div>
-                <button 
-                  onClick={() => setExplainVuln(null)} 
+                <button
+                  onClick={() => setExplainVuln(null)}
                   className="text-gray-400 hover:text-white p-1 rounded-full hover:bg-white/5 transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -5103,7 +5093,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                 </div>
               ) : (() => {
                 const info = getAIExplanation(explainVuln);
-                
+
                 let severityBadgeColor = "text-blue-400 border-blue-500/30 bg-blue-500/10";
                 if (explainVuln.severity.toUpperCase() === "CRITICAL") severityBadgeColor = "text-red-400 border-red-500/30 bg-red-500/10 shadow-[0_0_10px_rgba(239,68,68,0.2)]";
                 else if (explainVuln.severity.toUpperCase() === "HIGH") severityBadgeColor = "text-orange-400 border-orange-500/30 bg-orange-500/10 shadow-[0_0_10px_rgba(249,115,22,0.2)]";
@@ -5111,10 +5101,10 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
                 return (
                   <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar">
-                    
+
                     {/* Top Row: Severity & Threat Score */}
                     <div className="grid grid-cols-2 gap-4">
-                      
+
                       {/* Severity Panel */}
                       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 flex flex-col justify-center">
                         <span className="text-xs text-gray-300 font-mono uppercase tracking-wider mb-1.5 font-semibold">Impact Level</span>
@@ -5136,7 +5126,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           <span className="text-xs text-gray-300 font-mono uppercase tracking-wider mb-0.5 font-semibold">AI Threat Score</span>
                           <span className="text-3xl font-extrabold font-mono text-cyan-400">{info.score} <span className="text-xs text-gray-400 font-sans font-normal">/ 100</span></span>
                         </div>
-                        
+
                         {/* Interactive radial-like indicator */}
                         <div className="w-12 h-12 rounded-full border-2 border-white/10 flex items-center justify-center relative overflow-hidden shrink-0">
                           <div className={`absolute inset-0 opacity-20 ${info.score >= 80 ? 'bg-red-500' : 'bg-yellow-500'}`} />
@@ -5173,12 +5163,12 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                     <div className="space-y-2">
                       <h4 className="text-sm font-extrabold text-cyan-400/90 uppercase tracking-wider font-mono">Potential Attack Propagation Chain</h4>
                       <div className="bg-black/40 border border-white/5 p-5 rounded-xl relative overflow-hidden">
-                        
+
                         {/* Dynamic decorative network grids */}
                         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px]" />
-                        
+
                         <div className="relative flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-                          
+
                           <div className="bg-white/5 border border-white/10 px-4 py-2.5 rounded-lg text-center shrink-0">
                             <span className="text-xs text-gray-300 font-mono uppercase block font-bold mb-1">Ingress</span>
                             <span className="text-sm font-black text-white">Public Request</span>
@@ -5203,7 +5193,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
                           </div>
 
                         </div>
-                        
+
                         <div className="text-xs text-gray-300 font-mono mt-4 text-center tracking-normal font-semibold">
                           {info.attackPath}
                         </div>
@@ -5212,7 +5202,7 @@ ${scanResult.vulnerabilities.map(v => `[${v.severity}] ${v.package} (${v.id})\n$
 
                     {/* Impact vs Remediation */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      
+
                       {/* Business Impact */}
                       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
                         <h4 className="text-sm font-extrabold text-cyan-400/90 uppercase tracking-wider font-mono mb-2">Business Impact</h4>
