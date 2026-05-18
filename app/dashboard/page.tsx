@@ -1977,8 +1977,8 @@ ${scanResult.remediation_script || "N/A"}
 ${scanResult.exploit_simulation || "N/A"}
 \`\`\`
 
-## Vulnerabilities Found (${scanResult.(vulnerabilities || []).length})
-${scanResult.(vulnerabilities || []).map(v => `- [${v.severity}] ${v.package} (${v.id})\n  ${v.description}`).join('\n\n')}
+## Vulnerabilities Found (${(scanResult.vulnerabilities || []).length})
+${(scanResult.vulnerabilities || []).map(v => `- [${v.severity}] ${v.package} (${v.id})\n  ${v.description}`).join('\n\n')}
     `;
     const blob = new Blob([content.trim()], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -2012,9 +2012,9 @@ THREAT SIMULATION
 ${scanResult.exploit_simulation || "N/A"}
 
 ----------------------------------------
-VULNERABILITIES FOUND (${scanResult.(vulnerabilities || []).length})
+VULNERABILITIES FOUND (${(scanResult.vulnerabilities || []).length})
 ----------------------------------------
-${scanResult.(vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v.id})\n${v.description}`).join('\n\n')}
+${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v.id})\n${v.description}`).join('\n\n')}
     `;
     const blob = new Blob([content.trim()], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
