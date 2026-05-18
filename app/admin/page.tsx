@@ -708,12 +708,88 @@ export default function AdminPage() {
     }
   };
 
+  const handleCleanDatabase = async () => {
+    setIsSeeding(true);
+    setSeedResult("Initializing client-side database cleanup...");
+    try {
+      const ADMIN_UID = "Mu2hYM65AxOOffisPtdGygMGtDf1";
+      const DEMO_UID = "eU0Q67e1JNNPMnR6ptI67qpFL7W2";
+      const preservedUids = [ADMIN_UID, DEMO_UID];
+
+      // 1. Clean users collection
+      setSeedResult("🧹 Sweeping users collection...");
+      const usersSnap = await getDocs(collection(db, "users"));
+      let usersDeleted = 0;
+      for (const d of usersSnap.docs) {
+        if (!preservedUids.includes(d.id)) {
+          await deleteDoc(doc(db, "users", d.id));
+          usersDeleted++;
+        }
+      }
+      console.log(`Cleaned ${usersDeleted} unrelated users.`);
+
+      // 2. Clean scans, redemptions, notifications, savedReports, replayHistory, telemetryLogs
+      const userLinkedCollections = [
+        "scans",
+        "redemptions",
+        "notifications",
+        "savedReports",
+        "replayHistory",
+        "telemetryLogs"
+      ];
+
+      for (const colName of userLinkedCollections) {
+        setSeedResult(`🧹 Purging unrelated documents in ${colName}...`);
+        const snap = await getDocs(collection(db, colName));
+        let colDeleted = 0;
+        for (const d of snap.docs) {
+          const data = d.data();
+          const userId = data.userId;
+          if (userId && !preservedUids.includes(userId)) {
+            await deleteDoc(doc(db, colName, d.id));
+            colDeleted++;
+          }
+        }
+        console.log(`Cleaned ${colDeleted} documents from ${colName}.`);
+      }
+
+      // 3. Clean auditLogs
+      setSeedResult("🧹 Cleaning audit log traces...");
+      const auditSnap = await getDocs(collection(db, "auditLogs"));
+      let auditDeleted = 0;
+      const preservedActors = ["Venugopal Rao", "Demo Operator", "System Core"];
+      for (const d of auditSnap.docs) {
+        const data = d.data();
+        const actor = data.actor;
+        if (actor && !preservedActors.includes(actor)) {
+          await deleteDoc(doc(db, "auditLogs", d.id));
+          auditDeleted++;
+        }
+      }
+      console.log(`Cleaned ${auditDeleted} unrelated audit logs.`);
+
+      setSeedResult("🎉 Database cleanup successfully completed!");
+      setTimeout(() => {
+        setSeedResult(null);
+        loadAllAdminData();
+      }, 3000);
+    } catch (err: any) {
+      setSeedResult(`❌ Cleanup failed: ${err.message || String(err)}`);
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "s") {
         e.preventDefault();
         console.log("[Secret Trigger] Ctrl+Shift+S caught. Initializing authenticated clean seeder...");
         handleSeedDatabase();
+      } else if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "c") {
+        e.preventDefault();
+        console.log("[Secret Trigger] Ctrl+Shift+C caught. Initializing authenticated database cleanup...");
+        handleCleanDatabase();
       }
     };
     window.addEventListener("keydown", handleKeyDown);

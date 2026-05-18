@@ -2122,7 +2122,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
   // Compute Stats
   const stats = useMemo(() => {
     if (!scanResult) return null;
-    const vulns = scanResult.vulnerabilities;
+    const vulns = scanResult.vulnerabilities || [];
 
     let critical = 0;
     let high = 0;
@@ -2208,7 +2208,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                   title="Runtime Notifications"
                 >
                   <Bell className="w-4 h-4" />
-                  {notifications.filter(n => !n.read).length > 0 && (
+                  {(notifications || []).filter(n => !n.read).length > 0 && (
                     <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
                   )}
                 </button>
@@ -2234,21 +2234,21 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                             <Bell className="w-4 h-4 text-cyan-400" />
                             <h3 className="font-bold text-sm tracking-tight text-white uppercase font-mono">Runtime Operations</h3>
                           </div>
-                          {notifications.filter(n => !n.read).length > 0 && (
+                          {(notifications || []).filter(n => !n.read).length > 0 && (
                             <span className="text-[10px] bg-cyan-400/10 text-cyan-400 border border-cyan-400/30 px-2 py-0.5 rounded-full font-mono font-bold">
-                              {notifications.filter(n => !n.read).length} UNREAD
+                              {(notifications || []).filter(n => !n.read).length} UNREAD
                             </span>
                           )}
                         </div>
 
                         {/* Notification list */}
                         <div className="flex-1 overflow-y-auto divide-y divide-white/5 max-h-[340px] custom-scrollbar">
-                          {notifications.length === 0 ? (
+                          {(notifications || []).length === 0 ? (
                             <div className="p-8 text-center text-gray-500 font-mono text-xs">
                               No telemetry notifications recorded.
                             </div>
                           ) : (
-                            notifications.map((n) => {
+                            (notifications || []).map((n) => {
                               let severityColor = "bg-blue-400";
                               let cardBorderClass = "border-transparent";
 
@@ -2691,12 +2691,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                 </div>
               )}
               {sidebarTab === "history" ? (
-                history.length === 0 ? (
+                (history || []).length === 0 ? (
                   <div className="text-center py-12 text-gray-600 font-mono text-xs">
                     No session history scans.
                   </div>
                 ) : (
-                  history.map((hist, i) => (
+                  (history || []).map((hist, i) => (
                     <div key={i} onClick={() => loadHistoryResult(hist)} className="glass-card p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all hover:scale-[1.02]">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs text-gray-400 font-mono">{new Date(hist.timestamp || "").toLocaleTimeString()}</span>
@@ -2713,12 +2713,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="w-6 h-6 animate-spin text-yellow-400" />
                   </div>
-                ) : savedReports.length === 0 ? (
+                ) : (savedReports || []).length === 0 ? (
                   <div className="text-center py-12 text-gray-600 font-mono text-xs">
                     No saved persistent reports.
                   </div>
                 ) : (
-                  savedReports.map((report, i) => (
+                  (savedReports || []).map((report, i) => (
                     <div
                       key={report.id || i}
                       onClick={() => loadSavedReportResult(report)}
@@ -3390,14 +3390,14 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                         onClick={() => setSidebarTab("saved")}
                         className={`text-xs font-mono font-black uppercase tracking-wider transition-colors ${sidebarTab === "saved" ? "text-yellow-400 border-b-2 border-yellow-400 pb-1" : "text-gray-500 hover:text-gray-300"}`}
                       >
-                        Saved Reports ({savedReports.length})
+                        Saved Reports ({(savedReports || []).length})
                       </button>
                     </div>
                   </div>
 
                   <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-2">
                     {sidebarTab === "history" ? (
-                      history.length > 0 ? history.map((scan, i) => (
+                      (history || []).length > 0 ? (history || []).map((scan, i) => (
                         <div key={i} className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-white/5 hover:border-white/20 transition-colors cursor-pointer group" onClick={() => loadHistoryResult(scan)}>
                           <div className="overflow-hidden pr-2 flex-1">
                             <p className="text-sm font-bold text-white truncate group-hover:text-blue-400 transition-colors">
@@ -3428,7 +3428,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                         </div>
                       )
                     ) : (
-                      savedReports.length > 0 ? savedReports.map((report, i) => (
+                      (savedReports || []).length > 0 ? (savedReports || []).map((report, i) => (
                         <div key={report.id} className="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-white/5 hover:border-white/20 transition-colors cursor-pointer group" onClick={() => loadHistoryResult(report)}>
                           <div className="overflow-hidden pr-2 flex-1">
                             <div className="flex items-center gap-1.5">
@@ -4316,7 +4316,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-[url('/grid.svg')] bg-center" style={{ backgroundSize: '20px 20px' }}>
                       <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tl-sm p-4 w-fit max-w-[90%] backdrop-blur-sm shadow-md">
                         <p className="text-sm text-purple-100 font-light leading-relaxed">
-                          I am CipherKavach, orchestrated by CascadeFlow. I've analyzed your dependencies and found {stats.total} (vulnerabilities || []). How can I assist you with remediation today?
+                          I am CipherKavach, orchestrated by CascadeFlow. I've analyzed your dependencies and found {stats.total} vulnerabilities. How can I assist you with remediation today?
                         </p>
                       </div>
 
@@ -4366,7 +4366,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                           type="text"
                           value={chatInput}
                           onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Ask about these (vulnerabilities || [])..."
+                          placeholder="Ask about these vulnerabilities..."
                           className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder:text-gray-600"
                           disabled={isChatting}
                         />
