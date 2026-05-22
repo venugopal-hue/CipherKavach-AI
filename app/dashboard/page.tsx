@@ -16,6 +16,7 @@ interface Vuln {
   package: string;
   severity: string;
   description: string;
+  version?: string;
 }
 
 interface ExplainVulnData {
