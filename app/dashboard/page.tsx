@@ -4291,9 +4291,9 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                               <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Highest Priority</span>
                               <span className="font-mono text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">{scanResult.patch_priority.highest_priority_package}</span>
                             </div>
-                            <div className="bg-black/40 border border-white/5 rounded-xl p-3 flex justify-between items-center group hover:bg-white/5 transition-colors">
-                              <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Top Exploit</span>
-                              <span className="font-medium text-gray-200 text-sm max-w-[150px] truncate">{scanResult.patch_priority.most_dangerous_exploit}</span>
+                            <div className="bg-black/40 border border-white/5 rounded-xl p-3 flex justify-between items-start gap-4 group hover:bg-white/5 transition-colors">
+                              <span className="text-gray-400 text-xs font-bold uppercase tracking-wider shrink-0 mt-0.5">Top Exploit</span>
+                              <span className="font-medium text-gray-200 text-sm text-right break-words">{scanResult.patch_priority.most_dangerous_exploit}</span>
                             </div>
                             <div className="bg-black/40 border border-white/5 rounded-xl p-3 flex flex-col gap-2 group hover:bg-white/5 transition-colors">
                               <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Fastest Path</span>
