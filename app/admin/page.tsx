@@ -421,6 +421,11 @@ export default function AdminPage() {
   const [reqsLoading, setReqsLoading] = useState(false);
   const [reqActionLoading, setReqActionLoading] = useState<string | null>(null);
 
+  // ADMIN QUOTA MANAGEMENT STATE
+  const [adminTargetUid, setAdminTargetUid] = useState("");
+  const [adminQuotaLimit, setAdminQuotaLimit] = useState(5);
+  const [isResettingQuota, setIsResettingQuota] = useState(false);
+
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
     setSeedResult("Initializing client-side operational database seeder...");
@@ -1151,6 +1156,39 @@ export default function AdminPage() {
       console.error("Failed to execute request action:", e);
     } finally {
       setReqActionLoading(null);
+    }
+  };
+
+  const handleResetUserQuota = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !adminTargetUid.trim()) return;
+    setIsResettingQuota(true);
+    try {
+      const userRef = doc(db, "users", adminTargetUid.trim());
+      await setDoc(userRef, {
+        demoScansUsed: 0,
+        demoQuotaLimit: adminQuotaLimit
+      }, { merge: true });
+      
+      // ADDED: Audit Log for quota reset
+      await logAudit("RESET_QUOTA", adminTargetUid.trim(), `Reset quota and set limit to ${adminQuotaLimit} scans`);
+
+      triggerAdminToast(
+        "Quota Reset Successful",
+        `UID ${adminTargetUid.trim()} has been granted ${adminQuotaLimit} demo scans.`,
+        "success"
+      );
+      setAdminTargetUid("");
+      setAdminQuotaLimit(5);
+    } catch (err) {
+      console.warn("Failed to reset quota:", err);
+      triggerAdminToast(
+        "Quota Reset Failed",
+        "Could not update user quota. Ensure the UID is correct.",
+        "error"
+      );
+    } finally {
+      setIsResettingQuota(false);
     }
   };
 
@@ -2601,8 +2639,48 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Admin Quota Management */}
+                <div className="glass-card mt-6 p-6 rounded-2xl border border-blue-500/20 relative overflow-hidden bg-blue-500/5">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500" />
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <span className="text-sm font-black uppercase tracking-widest text-blue-300">Quota Management</span>
+                  </div>
+
+                  <form onSubmit={handleResetUserQuota} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-xs text-gray-300 uppercase font-bold tracking-widest mb-1.5 block">Target UID</label>
+                      <input
+                        type="text" value={adminTargetUid} onChange={e => setAdminTargetUid(e.target.value)}
+                        placeholder="e.g. uid_12345" required
+                        className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-xs font-mono text-white placeholder:text-gray-600 outline-none focus:border-blue-500/50 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-300 uppercase font-bold tracking-widest mb-1.5 block">Demo Quota Limit</label>
+                      <input
+                        type="number" min="1" value={adminQuotaLimit} onChange={e => setAdminQuotaLimit(Number(e.target.value))}
+                        required
+                        className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-xs font-mono text-white placeholder:text-gray-600 outline-none focus:border-blue-500/50 transition-all"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <button
+                        type="submit" disabled={isResettingQuota || !adminTargetUid.trim()}
+                        className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black rounded-xl transition-all text-xs disabled:opacity-60 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                      >
+                        {isResettingQuota ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                        {isResettingQuota ? "Resetting..." : "Reset & Increase"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
+
 
           </motion.div>
         </AnimatePresence>

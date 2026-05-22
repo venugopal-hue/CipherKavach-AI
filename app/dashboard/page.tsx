@@ -262,6 +262,8 @@ export default function DashboardPage() {
   const [adminCredits, setAdminCredits] = useState(100);
   const [adminEnterprise, setAdminEnterprise] = useState(false);
   const [adminReplay, setAdminReplay] = useState(false);
+
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCodes, setGeneratedCodes] = useState<{ code: string; credits: number; enterprise: boolean }[]>([]);
   const [copiedCode, setCopiedCode] = useState("");
@@ -307,9 +309,10 @@ export default function DashboardPage() {
 
   const isDemoQuotaExhausted = useMemo(() => {
     if (isAdmin || isEnterprise) return false;
+    const limit = userDoc?.demoQuotaLimit ?? 2;
     const dbUsed = userDoc?.demoScansUsed ?? 0;
     const deviceUsed = getDeviceScansUsed();
-    return dbUsed >= 2 || deviceUsed >= 2;
+    return dbUsed >= limit || deviceUsed >= limit;
   }, [userDoc, isEnterprise, isAdmin, getDeviceScansUsed]);
 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
@@ -706,8 +709,52 @@ export default function DashboardPage() {
 
   const handleRequestCredits = async (e: React.FormEvent) => {
     e.preventDefault();
-    triggerComingSoon();
-    setShowRequestCreditsModal(false);
+    if (!currentUser) return;
+
+    setIsSubmittingRequest(true);
+    try {
+      await addDoc(collection(db, "creditRequests"), {
+        uid: currentUser.uid,
+        email: currentUser.email || "unknown",
+        requestedCredits: requestCreditsAmt,
+        projectName: requestProjectName,
+        reason: requestReason,
+        status: "PENDING",
+        requestedAt: serverTimestamp()
+      });
+
+      setRequestSuccess(true);
+      triggerNotification(
+        "Request Dispatched",
+        "Your runtime quota request has been sent to the registry.",
+        "general",
+        "success"
+      );
+
+      const ts = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      setTelemetry(prev => [
+        ...prev, 
+        `[${ts}] Operator submitted runtime quota request for ${requestCreditsAmt} cr.`
+      ]);
+
+      setTimeout(() => {
+        setShowRequestCreditsModal(false);
+        setRequestSuccess(false);
+        setRequestReason("");
+        setRequestProjectName("");
+      }, 2500);
+
+    } catch (err) {
+      console.error("Failed to request credits:", err);
+      triggerNotification(
+        "Request Failed",
+        "Could not dispatch the quota request. Please try again.",
+        "general",
+        "error"
+      );
+    } finally {
+      setIsSubmittingRequest(false);
+    }
   };
 
   const handleRedeemCode = async () => {
@@ -2580,7 +2627,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                           </span>
                           {!isAdmin && !isEnterprise && (
                             <span className="inline-flex items-center gap-1.5 text-[9px] font-bold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 rounded-full font-mono w-max">
-                              ⚡ {(userDoc?.demoScansUsed ?? 0)} / 2 demos used
+                              ⚡ {(userDoc?.demoScansUsed ?? 0)} / {(userDoc?.demoQuotaLimit ?? 2)} demos used
                             </span>
                           )}
                         </div>
@@ -2611,7 +2658,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     {!isAdmin && !isEnterprise && (
                       <div className="flex items-center justify-between py-1 bg-yellow-500/5 border border-yellow-500/20 rounded-xl px-3 text-xs font-mono mb-2">
                         <span className="text-yellow-400 font-bold">Demo Quota</span>
-                        <span className="text-yellow-300 font-black">{(userDoc?.demoScansUsed ?? 0)} / 2 Scans Used</span>
+                        <span className="text-yellow-300 font-black">{(userDoc?.demoScansUsed ?? 0)} / {(userDoc?.demoQuotaLimit ?? 2)} Scans Used</span>
                       </div>
                     )}
                     <div className="flex items-center justify-between"><span className="text-sm text-gray-400">Credits Remaining</span><span className="text-xl font-mono font-black text-yellow-400">{isAdmin ? "∞ Unlimited" : userCredits}</span></div>
@@ -2621,7 +2668,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     <div className="flex items-center justify-between"><span className="text-xs text-gray-400">Tokens Processed</span><span className="text-sm font-mono text-blue-300 font-bold">~18k</span></div>
                     <div className="pt-3 border-t border-white/5 text-xs text-gray-400 font-mono">Standard: 1cr · Replay: 3cr · Multi-Model: 5cr</div>
                     <button
-                      onClick={triggerComingSoon}
+                      onClick={() => setShowRequestCreditsModal(true)}
                       className="w-full mt-4 py-2.5 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(234,179,8,0.15)] hover:shadow-[0_0_20px_rgba(234,179,8,0.25)]"
                     >
                       <Zap className="w-3.5 h-3.5" /> Request More Credits
@@ -2888,6 +2935,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                       </div>
                     )}
                   </div>
+
                 </div>
               )}
 
@@ -4679,7 +4727,10 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
 
               <div className="space-y-2.5">
                 <button
-                  onClick={triggerComingSoon}
+                  onClick={() => {
+                    setShowExhaustionModal(false);
+                    setShowRequestCreditsModal(true);
+                  }}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
                   <span className="flex items-center gap-2 font-mono"><Key className="w-4 h-4 text-black" /> Request More Credits</span>
@@ -4759,7 +4810,10 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
 
               <div className="space-y-2.5">
                 <button
-                  onClick={triggerComingSoon}
+                  onClick={() => {
+                    setShowGovernanceModal(false);
+                    setShowRequestCreditsModal(true);
+                  }}
                   className="w-full flex items-center justify-between p-3.5 bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase text-xs rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                 >
                   <span className="flex items-center gap-2 font-mono"><Key className="w-4 h-4 text-black" /> Request Additional Credits</span>
