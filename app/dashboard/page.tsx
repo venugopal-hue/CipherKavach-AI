@@ -44,6 +44,8 @@ interface RepoMetadata {
   stars: number;
   language: string;
   updatedAt: string;
+  defaultBranch: string;
+  version?: string;
 }
 
 interface ScanResult {
