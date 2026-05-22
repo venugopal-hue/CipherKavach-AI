@@ -4307,7 +4307,7 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                     </div>
 
                     {/* Extended Row 2: Attack Intelligence Graph */}
-                    {scanResult.progression_timeline && (
+                    {(scanResult.vulnerabilities || []).length > 0 && (
                       <div className="glass-card rounded-2xl border border-white/5 p-6 md:p-8 relative overflow-hidden shadow-2xl group hover:border-white/10 transition-colors">
                         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-[0.03]" style={{ backgroundSize: '30px 30px' }} />
 
@@ -4325,12 +4325,12 @@ ${(scanResult.vulnerabilities || []).map(v => `[${v.severity}] ${v.package} (${v
                           <div>
                             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-6 flex items-center gap-2"><Layers className="w-4 h-4" /> Incident Progression</h4>
                             <div className="space-y-6 relative before:absolute before:inset-y-2 before:left-[9px] before:w-[2px] before:bg-indigo-900/30">
-                              {scanResult.progression_timeline.map((step, idx) => (
+                              {(scanResult.progression_timeline || ["Initial Exploit", "Privilege Escalation", "Lateral Movement", "System Compromise", "Data Exfiltration"]).map((step, idx, arr) => (
                                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + (idx * 0.1) }} key={idx} className="relative pl-8">
                                   <div className="absolute left-0 top-1 w-5 h-5 -ml-1 rounded-full bg-black border-2 border-indigo-500 flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.5)]">
                                     <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse" />
                                   </div>
-                                  <span className={`text-sm font-medium ${idx === scanResult.progression_timeline!.length - 1 ? 'text-red-400 font-bold' : 'text-gray-300'}`}>{step}</span>
+                                  <span className={`text-sm font-medium ${idx === arr.length - 1 ? 'text-red-400 font-bold' : 'text-gray-300'}`}>{step}</span>
                                 </motion.div>
                               ))}
                             </div>
