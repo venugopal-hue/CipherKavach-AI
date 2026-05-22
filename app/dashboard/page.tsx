@@ -1810,7 +1810,8 @@ export default function DashboardPage() {
         owner: report.displayName || "Operator",
         stars: 0,
         language: "",
-        updatedAt: report.createdAt
+        updatedAt: report.createdAt,
+        defaultBranch: "main"
       }
     };
     setScanResult(result);
